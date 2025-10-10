@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 156a2e7af1c57514f963a7aba33f2938, type: 3}
+  m_Name: NewBaseAttack
+  m_EditorClassIdentifier: 
+  attackId: 
+  displayName: 
+  baseDamage: 10
+  baseCooldown: 1
+  baseCount: 1
+  pattern: {fileID: 11400000, guid: 4f9cce67ba2cd284794ee54c34390504, type: 2}
+  patternValues:
+  - propertyName: pint
+    propertyType: 0
+    intValue: 0
+    floatValue: 0
+    stringValue: 
+    boolValue: 0
+  - propertyName: pfloat
+    propertyType: 1
+    intValue: 0
+    floatValue: 0
+    stringValue: 
+    boolValue: 0
+  - propertyName: pstring
+    propertyType: 2
+    intValue: 0
+    floatValue: 0
+    stringValue: 
+    boolValue: 0
+  - propertyName: pbool
+    propertyType: 3
+    intValue: 0
+    floatValue: 0
+    stringValue: 
+    boolValue: 0
+  element:
+  - {fileID: 11400000, guid: d9c3175b9fd9c0c42b099037c8184d2a, type: 2}
+  - {fileID: 11400000, guid: b1086cacdfdf72c4bb4dbcc903a69fb7, type: 2}
+  elementValues:
+  - propertyName: elint
+    propertyType: 0
+    intValue: 0
+    floatValue: 0
+    stringValue: 
+    boolValue: 0
+  - propertyName: elfloat
+    propertyType: 1
+    intValue: 0
+    floatValue: 0
+    stringValue: 
+    boolValue: 0
+  effect:
+  - {fileID: 11400000, guid: 69c5c0bc83f11d149b55fba0beb9b6b3, type: 2}
+  - {fileID: 11400000, guid: b31c6e3496c7f2344afc2270a9f72456, type: 2}
+  effectValues:
+  - propertyName: efstring
+    propertyType: 2
+    intValue: 0
+    floatValue: 0
+    stringValue: 
+    boolValue: 0
+  - propertyName: efbool
+    propertyType: 3
+    intValue: 0
+    floatValue: 0
+    stringValue: 
+    boolValue: 0
