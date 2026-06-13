@@ -411,7 +411,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 408231099}
-  - component: {fileID: 408231098}
+  - component: {fileID: 408231100}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -419,29 +419,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &408231098
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 408231097}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6faf8d20c8da8a54c82e974a26e93347, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseAttack: 10
-  baseAttackRange: 1
-  equipmentEffects: []
-  attackEffects: []
-  experience: 0
-  gold: 0
-  donut: 0
-  gem: 0
-  chocolate: 0
-  skillShard: 0
-  equipmentShard: 0
 --- !u!4 &408231099
 Transform:
   m_ObjectHideFlags: 0
@@ -457,6 +434,36 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &408231100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 408231097}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6faf8d20c8da8a54c82e974a26e93347, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseAttack: 10
+  baseAttackRange: 6
+  baseAttackInterval: 1
+  equipmentEffects: []
+  attackEffects: []
+  experience: 0
+  gold: 0
+  donut: 0
+  gem: 0
+  chocolate: 0
+  skillShard: 0
+  equipmentShard: 0
+  playerLevel: 1
+  skillList:
+  - Drone
+  - Sphere
+  - Turret
+  attackBuilder: {fileID: 11400000, guid: 28359eef67012ef4db7d12ce297dc370, type: 2}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -601,8 +608,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 18a66ebc0c45be746884e846a7727f08, type: 2}
+  m_sharedMaterial: {fileID: -2819189431815504374, guid: 18a66ebc0c45be746884e846a7727f08, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

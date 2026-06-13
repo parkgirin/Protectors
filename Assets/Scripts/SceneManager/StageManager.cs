@@ -6,27 +6,40 @@ using UnityEngine.SceneManagement;
 
 public class StageManager : MonoBehaviour
 {
-    public GameManager GameManager;
     public static StageManager Instance;
 
-    // 스테이지 내 플레이어 초기 스탯
-    public float attack;
-    public int attackCount = 1; // 발사 수
-    public float attackRange;
-    public float attackInterval;
-    public float bulletshot = 10f;   // 총알 속도
-    public int maxBulletHP = 1;   // 총알 관통력
+    public GameManager GameManager;
+
+    [Header("References")]
+    public UIManager uiManager;
+    public GameObject player;
+
+    [Header("Controllers")]
+    public StageContext context;
+    //public StageSpawnController spawnController;
+    //public StageProgressController progressController;
+    //public StageRewardController rewardController;
+
+    
+    public float WallHP = 100f; // 벽 체력
 
     // 스테이지 종료 후 외부로 전달될 보상
     public int experience = 0;
+    public int maxExperience = 0;
     public int gold = 0;
+    public int maxgold = 0;
     public int gem = 0;
+    public int maxgem = 0;
 
     public int skillShard = 0;
+    public int maxskillShard = 0;
     public int equipmentShard = 0;
+    public int maxequipmentShard = 0;
 
     public int donut = 0;
+    public int maxdonut = 0;
     public int chocolate = 0;
+    public int maxchocolate = 0;
 
     // 적 전체 제거용 bool
     public bool DestroyAll = false;
@@ -34,10 +47,10 @@ public class StageManager : MonoBehaviour
     // 웨이브 수
     public int currentWave = 1;
     public int maxWaves = 20;
-    public TextMeshProUGUI waveText;
+    private int lastWave = 0;
 
     [Header("Stage Objects")]
-    public GameObject player;
+    //public GameObject player;
     public GameObject enemyManager;
     public GameObject uiCanvas;
 
@@ -50,6 +63,10 @@ public class StageManager : MonoBehaviour
     public float spawnInterval = 2f;    // 스폰 요청 간격 (초)
     public float totalSpawnDuration = 180f;    // 적이 전부 스폰하는 데 걸리는 시간
 
+    // 처치한 적 수
+    public int enemiesDefeated = 0;
+    public float WaveExperience = 0;
+
     public Targeting targeting;
 
     // bullet pooling
@@ -58,6 +75,24 @@ public class StageManager : MonoBehaviour
 
     // 보스 처치 후 참이 되는 bool
     public bool isBossDefeated = false;
+
+    public bool GameOvered = false;
+
+    // UI
+    public GameObject PausePanel;
+    public GameObject RewardPanel;
+    public GameObject UpgradePanel;
+
+    /*public enum RewardType
+    {
+        Experience,
+        Gold,
+        Gem,
+        SkillShard,
+        EquipmentShard,
+        Donut,
+        Chocolate
+    }*/
 
     private void Awake()
     {
@@ -84,6 +119,11 @@ public class StageManager : MonoBehaviour
 
         // GameManager 값으로 스테이지 초기화
         InitializeStage();
+
+        if (uiManager == null)
+        {
+            uiManager = FindObjectOfType<UIManager>();
+        }
     }
 
     // =========================
@@ -94,13 +134,13 @@ public class StageManager : MonoBehaviour
         // =========================
         // 1. 기본 스탯 불러오기
         // =========================
-        attack = GameManager.baseAttack;
-        attackCount = 1;
-        attackRange = GameManager.baseAttackRange;
-        attackInterval = GameManager.baseAttackInterval;
-        bulletshot = 10f;
+        context.attack = GameManager.baseAttack;
+        context.attackCount = 1;
+        context.attackRange = GameManager.baseAttackRange;
+        context.attackInterval = GameManager.baseAttackInterval;
+        context.bulletshot = 10f;
 
-        Debug.Log($"[Stage Init] 공격력 {attack}, 범위 {attackRange}, 공격 간격 {attackInterval}");
+        Debug.Log($"[Stage Init] 공격력 {context.attack}, 범위 {context.attackRange}, 공격 간격 {context.attackInterval}");
 
         // 해금된 스킬/캐릭터 출력
         foreach (var skill in GameManager.skillUnlocked)
@@ -116,8 +156,15 @@ public class StageManager : MonoBehaviour
         // 2. 스테이지 상태 초기화
         // =========================
         currentWave = 0;
+        WaveExperience = 0;
         experience = 0;
         spawnedEnemies = 0; // 지금까지 스폰된 적 수 리셋
+        enemiesDefeated = 0; // 처치한 적 수 리셋
+        isBossDefeated = false;
+        GameOvered = false;
+        WallHP = 100f; // 벽 체력 초기화
+        PausePanel.SetActive(false);
+        RewardPanel.SetActive(false);
 
         // =========================
         // 3. 총알 풀 초기화
@@ -129,8 +176,10 @@ public class StageManager : MonoBehaviour
         // 4. 스폰 시스템 시작
         // =========================
         spawnInterval = totalSpawnDuration / (totalEnemiesThisStage / enemiesPerSpawn); // 스테이지 전체 적 수에 맞춰 스폰 간격 조정
-        StartNewWave(); // 웨이브 첫 시작
+        currentWave = 1; // 웨이브 첫 시작
         StartCoroutine(SpawnRequestRoutine()); // 일정 시간마다 스폰 요청
+
+        Time.timeScale = 1f; // 게임 시간 재개
     }
 
     private IEnumerator SpawnRequestRoutine()
@@ -195,13 +244,17 @@ public class StageManager : MonoBehaviour
         Debug.Log($"적 {spawnCount}마리 스폰 요청, 현재까지 총 {spawnedEnemies}/{totalEnemiesThisStage}");
     }
 
-    // 새로운 웨이브 함수
-    public void StartNewWave()
+    // Wall Hit
+    public void OnWallHit(float Damage)
     {
-        currentWave++;
-        // 업그레이드 선택 로직 추가 예정
-
-        if (DestroyAll) return;
+        WallHP -= Damage;
+        Debug.Log($"Wall HP: {WallHP}");
+        if (WallHP <= 0)
+        {
+            Debug.Log("Wall 파괴! 스테이지 실패...");
+            GameOver();
+            // 스테이지 실패 처리 추가 예정
+        }
     }
 
     // =========================
@@ -209,9 +262,110 @@ public class StageManager : MonoBehaviour
     // =========================
     public void OnEnemyDefeated()
     {
-        Debug.Log($"적 처치!");
+        enemiesDefeated++;
+
+        int enemiesPerWave = totalEnemiesThisStage / maxWaves;
+        int newWave = enemiesDefeated / enemiesPerWave;
+
+        if (newWave > lastWave)
+        {
+            lastWave = newWave;
+            OnWaveTriggered(newWave);
+        }
+
+        WaveExperience = CalculateWaveProgress();
+        uiManager.UpdateWaveProgressUI(WaveExperience, maxWaves);
     }
 
+    private void OnWaveTriggered(int wave)
+    {
+        Debug.Log($"웨이브 {wave} 시작!");
+
+        Time.timeScale = 0f;
+        uiManager.UpdateUpgradeList();
+    }
+
+    // 웨이브 경험치 계산
+    public float CalculateWaveProgress()
+    {
+        int enemiesPerWave = Mathf.CeilToInt((float)totalEnemiesThisStage / maxWaves);
+
+        int calculatedWave = enemiesDefeated / enemiesPerWave;
+        int defeatedInCurrentWave = enemiesDefeated % enemiesPerWave;
+
+        float waveRatio = (float)defeatedInCurrentWave / enemiesPerWave;
+
+        return calculatedWave + waveRatio;
+    }
+
+    // 일시정지 및 재시작
+    public void Pause()
+    {
+        //Reward_Calculation();
+        if(GameOvered) return;
+        if (Time.timeScale == 0f)
+        {
+            Time.timeScale = 1f; // 게임 재시작
+            PausePanel.SetActive(false);
+        }
+        else
+        {
+            Time.timeScale = 0f; // 게임 일시정지
+            PausePanel.SetActive(true);
+        }
+        
+    }
+
+    public void GameOver()
+    {
+        GameOvered = true;
+        Time.timeScale = 0f; // 게임 일시정지
+        // 보상 계산
+        //Reward_Calculation();
+        RewardPanel.SetActive(true);
+        //OnStageClear();
+        CalculateScore();
+    }
+
+    // 보상 계산
+    /*    private void Reward_Calculation()
+        {
+            // 경험치 및 골드 보상 계산(임시, 이후 웨이브 별 보상 테이블로 대체 예정)
+            float ratio = (float)enemiesDefeated / totalEnemiesThisStage;
+
+            experience = (int)(ratio * maxExperience);
+            gold = (int)(ratio * maxgold);
+            gem = (int)(ratio * maxgem);
+            skillShard = (int)(ratio * maxskillShard);
+            equipmentShard = (int)(ratio * maxequipmentShard);
+            donut = (int)(ratio * maxdonut);
+            chocolate = (int)(ratio * maxchocolate);
+
+            List<int> rewards = new List<int>
+            {
+                experience,
+                gold,
+                gem,
+                skillShard,
+                equipmentShard,
+                donut,
+                chocolate
+            };
+            // 보상 UI 에 전달
+            UIManager.UpdateRewardUI(rewards);
+        }
+    */
+
+    // 점수 계산(프로토타입용)
+    public void CalculateScore()
+    {
+        int score = 100000;
+        float wallHealthRatio = WallHP / 100f + 1.0f;
+        float enemyDefeatRatio = (float)enemiesDefeated / totalEnemiesThisStage;
+        score = (int)(score * wallHealthRatio * enemyDefeatRatio);
+
+        uiManager.UpdateScoreUI(score);
+    }
     // =========================
     // 스테이지 종료
     // =========================

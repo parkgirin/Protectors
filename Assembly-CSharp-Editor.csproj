@@ -59,7 +59,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\ScriptableObjects\Scripts\Editor\BaseAttackSOEditor.cs" />
-    <Compile Include="Assets\Scripts\ScriptableObjects\Scripts\Editor\SOPropertyEditor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

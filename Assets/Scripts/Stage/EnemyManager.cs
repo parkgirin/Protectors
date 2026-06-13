@@ -6,7 +6,7 @@ public class EnemyManager : MonoBehaviour
 {
     public static EnemyManager Instance;
 
-    public GameObject enemyPrefab; // 스폰할 적 프리팹
+    public List<GameObject> enemyPrefab = new List<GameObject>(); // 스폰할 적 프리팹
     public int maxEnemies = 150;   // 전체 풀 수
     public int maxActiveEnemies = 100; // 화면 내 최대 활성 적 수
 
@@ -32,7 +32,7 @@ public class EnemyManager : MonoBehaviour
         // 대기 적 활성화
         if (pendingEnemies.Count > 0 && activeEnemies.Count < maxActiveEnemies)
         {
-            Debug.Log($"[OnEnemyDestroyed] 대기 적 활성화, 남은 적 {pendingEnemies.Count - 1}");
+            //Debug.Log($"[OnEnemyDestroyed] 대기 적 활성화, 남은 적 {pendingEnemies.Count - 1}");
             GameObject next = pendingEnemies.Dequeue();
             ActivateEnemy(next);
         }
@@ -43,9 +43,20 @@ public class EnemyManager : MonoBehaviour
         for (int i = 0; i < maxEnemies; i++)
         {
             // EnemyManager의 자식으로 생성
-            GameObject enemy = Instantiate(enemyPrefab, this.transform);
-            enemy.SetActive(false);
-            enemyPool.Add(enemy);
+            if(enemyPrefab.Count > 1)
+            {
+                int randomIndex = Random.Range(0, enemyPrefab.Count);
+                GameObject enemy = Instantiate(enemyPrefab[randomIndex], this.transform);
+                enemy.SetActive(false);
+                enemyPool.Add(enemy);
+
+            }
+            else
+            {
+                GameObject enemy = Instantiate(enemyPrefab[0], this.transform);
+                enemy.SetActive(false);
+                enemyPool.Add(enemy);
+            }
         }
     }
 
@@ -76,7 +87,7 @@ public class EnemyManager : MonoBehaviour
 
     public void ActivateEnemy(GameObject enemy)
     {
-        Debug.Log("[ActivateEnemy] 적 활성화");
+        //Debug.Log("[ActivateEnemy] 적 활성화");
         enemy.SetActive(true);
         enemy.transform.parent = this.transform; // 안전하게 부모 지정
         RegisterEnemy(enemy);
