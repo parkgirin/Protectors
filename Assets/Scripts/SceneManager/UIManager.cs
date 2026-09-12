@@ -20,6 +20,11 @@ public class UIManager : MonoBehaviour
     public GameObject RewardPanel;
     public GameObject UpgradePanel;
 
+    public List<UnityEngine.UI.Button> upgradeButtons;
+    public List<TextMeshProUGUI> upgradeTexts;
+
+    public AttackRuntimeData attack;
+
     public void OnEnable()
     {
         waveExpSlider.value = 0;
@@ -79,10 +84,46 @@ public class UIManager : MonoBehaviour
 
     public void UpdateUpgradeList()
     {
+        attack = StageManager.Instance.context.RuntimeAttack;
         // 업그레이드 목록 UI 업데이트 로직 구현
         // StageManager 에서 업그레이드 목록 3개 받아 UI 에 전달
         UpgradePanel.SetActive(true);
+
+        upgradeTexts[0].text = "공격력 +10%";
+        upgradeTexts[1].text = "공격 속도 +10%";
+        upgradeTexts[2].text = "공격 범위 +10%";
+
+        upgradeButtons[0].onClick.RemoveAllListeners();
+        upgradeButtons[0].onClick.AddListener(() => AddDamageMultiplier(1.1f));
+
+        upgradeButtons[1].onClick.RemoveAllListeners();
+        upgradeButtons[1].onClick.AddListener(() => AddAttackIntervalMultiplier(0.9f));
+
+        upgradeButtons[2].onClick.RemoveAllListeners();
+        upgradeButtons[2].onClick.AddListener(() => AddRangeMultiplier(1.1f));
     }
 
-    
+    public void AddDamageMultiplier(float multiplier)
+    {
+        attack.damageMultiplier *= multiplier;
+        CloseUpgradePanel();
+    }
+
+    public void AddAttackIntervalMultiplier(float multiplier)
+    {
+        attack.attackIntervalMultiplier *= multiplier;
+        CloseUpgradePanel();
+    }
+
+    public void AddRangeMultiplier(float multiplier)
+    {
+        attack.rangeMultiplier *= multiplier;
+        CloseUpgradePanel();
+    }
+
+    public void CloseUpgradePanel()
+    {
+        UpgradePanel.SetActive(false);
+        Time.timeScale = 1f; // 게임 재개
+    }
 }

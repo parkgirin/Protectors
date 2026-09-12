@@ -16,11 +16,12 @@ public class StageManager : MonoBehaviour
 
     [Header("Controllers")]
     public StageContext context;
-    //public StageSpawnController spawnController;
-    //public StageProgressController progressController;
-    //public StageRewardController rewardController;
+    [SerializeField] private AttackDataSO startingAttack;
+    [SerializeField] private AttackBuilder attackBuilder;
 
-    
+    private AttackRuntimeData attackData;
+
+
     public float WallHP = 100f; // 벽 체력
 
     // 스테이지 종료 후 외부로 전달될 보상
@@ -101,13 +102,6 @@ public class StageManager : MonoBehaviour
 
     private void OnEnable()
     {
-        // 스테이지 진입 후 오브젝트 활성화
-        if (player != null) player.SetActive(true);
-        if (enemyManager != null) enemyManager.SetActive(true);
-        if (uiCanvas != null) uiCanvas.SetActive(true);
-
-        Debug.Log("Stage 시작: 모든 오브젝트 활성화됨!");
-
         // GameManager 확인
         if (GameManager.Instance == null)
         {
@@ -115,71 +109,100 @@ public class StageManager : MonoBehaviour
             SceneManager.LoadScene("Home");
             return;
         }
+
         GameManager = GameManager.Instance;
 
-        // GameManager 값으로 스테이지 초기화
+        // 스테이지 초기화
         InitializeStage();
+    }
 
+    // 스테이지 초기화
+    private void InitializeStage()
+    {
+        // UI Manager 참조 확보
         if (uiManager == null)
         {
             uiManager = FindObjectOfType<UIManager>();
         }
-    }
 
-    // =========================
-    // 스테이지 초기화
-    // =========================
-    private void InitializeStage()
-    {
-        // =========================
-        // 1. 기본 스탯 불러오기
-        // =========================
-        context.attack = GameManager.baseAttack;
-        context.attackCount = 1;
-        context.attackRange = GameManager.baseAttackRange;
-        context.attackInterval = GameManager.baseAttackInterval;
-        context.bulletshot = 10f;
+        // 필수 참조 확인
+        if (context == null)
+        {
+            Debug.LogError("StageContext가 연결되지 않았습니다.");
+            return;
+        }
 
-        Debug.Log($"[Stage Init] 공격력 {context.attack}, 범위 {context.attackRange}, 공격 간격 {context.attackInterval}");
+        if (startingAttack == null)
+        {
+            Debug.LogError("startingAttack에 AttackDataSO가 연결되지 않았습니다.");
+            return;
+        }
 
-        // 해금된 스킬/캐릭터 출력
+        if (attackBuilder == null)
+        {
+            Debug.LogError("attackBuilder가 연결되지 않았습니다.");
+            return;
+        }
+
+        // 공격 RuntimeData 생성
+        attackData = attackBuilder.Build(startingAttack);
+        context.InitializeAttack(attackData);
+
+        Debug.Log(
+            $"[Stage Init] 공격력 {attackData.damage}, " +
+            $"범위 {attackData.range}, " +
+            $"공격 간격 {attackData.attackInterval}, " +
+            $"탄환 수 {attackData.bulletCount}, " +
+            $"탄환 속도 {attackData.bulletSpeed}, " +
+            $"탄환 HP {attackData.bulletHP}"
+        );
+
+        // GameManager 데이터 확인
         foreach (var skill in GameManager.skillUnlocked)
             Debug.Log($"해금된 스킬: {skill.Key} → {skill.Value}");
+
         foreach (var character in GameManager.specialCharacterUnlocked)
             Debug.Log($"해금된 캐릭터: {character.Key} → {character.Value}");
 
-        // 장비/공격 효과 확인
         Debug.Log("장비 효과: " + string.Join(", ", GameManager.equipmentEffects));
         Debug.Log("공격 효과: " + string.Join(", ", GameManager.attackEffects));
 
-        // =========================
-        // 2. 스테이지 상태 초기화
-        // =========================
+        // 스테이지 상태 초기화
         currentWave = 0;
         WaveExperience = 0;
         experience = 0;
-        spawnedEnemies = 0; // 지금까지 스폰된 적 수 리셋
-        enemiesDefeated = 0; // 처치한 적 수 리셋
+        spawnedEnemies = 0;
+        enemiesDefeated = 0;
         isBossDefeated = false;
         GameOvered = false;
-        WallHP = 100f; // 벽 체력 초기화
+        WallHP = 100f;
+
         PausePanel.SetActive(false);
         RewardPanel.SetActive(false);
 
-        // =========================
-        // 3. 총알 풀 초기화
-        // =========================
+        // 총알 풀 초기화
         bulletPool.Clear();
-        AddBullets(3); // 초기 총알 3개 생성
+        AddBullets(3);
 
-        // =========================
-        // 4. 스폰 시스템 시작
-        // =========================
-        spawnInterval = totalSpawnDuration / (totalEnemiesThisStage / enemiesPerSpawn); // 스테이지 전체 적 수에 맞춰 스폰 간격 조정
-        currentWave = 1; // 웨이브 첫 시작
-        StartCoroutine(SpawnRequestRoutine()); // 일정 시간마다 스폰 요청
+        // 스테이지 오브젝트 활성화
+        if (player != null)
+            player.SetActive(true);
 
-        Time.timeScale = 1f; // 게임 시간 재개
+        if (enemyManager != null)
+            enemyManager.SetActive(true);
+
+        if (uiCanvas != null)
+            uiCanvas.SetActive(true);
+
+        Debug.Log("Stage 시작: 모든 오브젝트 활성화됨!");
+
+        // 적 스폰 시작
+        spawnInterval = totalSpawnDuration / (totalEnemiesThisStage / enemiesPerSpawn);
+        currentWave = 1;
+
+        StartCoroutine(SpawnRequestRoutine());
+
+        Time.timeScale = 1f;
     }
 
     private IEnumerator SpawnRequestRoutine()

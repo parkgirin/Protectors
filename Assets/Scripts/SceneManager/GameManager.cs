@@ -9,13 +9,6 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
     //public BaseAttackSO attackSO;
 
-    // =========================
-    // 스테이지 진입 전 홈에서 세팅되는 값
-    // =========================
-    [Header("플레이어 초기 상태")]
-    public float baseAttack = 10f;
-    public float baseAttackRange = 1f;
-    public float baseAttackInterval = 1f;
 
     [Header("사용 가능한 캐릭터/스킬")]
     public Dictionary<string, bool> skillUnlocked = new Dictionary<string, bool>();
@@ -45,10 +38,6 @@ public class GameManager : MonoBehaviour
     // 스킬 목록
     public List<string> skillList = new List<string> { "Drone", "Sphere", "Turret" };
 
-    [Header("빌더 SO")]
-    public AttackBuilder attackBuilder;
-    private AttackRuntimeData AttackData;
-
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -69,7 +58,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("스테이지 시작: 홈에서 세팅된 값 적용");
 
         // 홈에서 세팅한 공격력/범위
-        Debug.Log($"기본 공격력: {baseAttack}, 공격 범위: {baseAttackRange}");
+        //Debug.Log($"기본 공격력: {baseAttack}, 공격 범위: {baseAttackRange}");
 
         // 사용 가능한 스킬/캐릭터 확인
         foreach (var skill in skillUnlocked)

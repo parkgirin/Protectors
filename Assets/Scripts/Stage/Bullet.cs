@@ -9,10 +9,10 @@ public class Bullet : MonoBehaviour
     private void OnEnable()
     {
         // 총알 이동 속도 세팅
-        speed = StageManager.Instance != null ? StageManager.Instance.context.bulletshot : 5f;
+        speed = StageManager.Instance != null ? StageManager.Instance.context.RuntimeAttack.bulletSpeed : 5f;
 
         // 매번 풀에서 꺼낼 때 내구도 초기화
-        bullet_HP = StageManager.Instance != null ? StageManager.Instance.context.maxBulletHP : 1;
+        bullet_HP = StageManager.Instance != null ? StageManager.Instance.context.RuntimeAttack.bulletHP : 1;
     }
 
     private void Update()
@@ -40,7 +40,7 @@ public class Bullet : MonoBehaviour
                 Enemy enemy = collision.GetComponent<Enemy>();
                 if (enemy != null)
                 {
-                    enemy.TakeDamage(StageManager.Instance.context.attack);
+                    enemy.TakeDamage(StageManager.Instance.context.RuntimeAttack.damage);
                 }
 
                 // 총알 내구도 감소

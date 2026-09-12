@@ -4,57 +4,41 @@ using UnityEngine;
 
 public class Player_Shot : MonoBehaviour
 {
-    public int bulletCount = 1;               // 발사 수
     public float attackTimer = 0f;           // 발사 주기 체크
     public float targetCheckTimer = 0f;      // 타겟 추적 주기 체크
     public GameObject currentTarget;         // 최근에 찾은 적 (Enemy GameObject)
 
-    public float targetCheckInterval = 0.5f; // 타겟 갱신 간격 (초)
-
-    private StageManager stageManager;
-
     private void OnEnable()
     {
-        // 가능한 한 미리 찾아둠 (Inspector 대신 코드로 연결)
-        stageManager = FindObjectOfType<StageManager>();
-        if (stageManager == null)
-            Debug.LogWarning("StageManager를 찾을 수 없습니다. 스테이지 관련 기능이 동작하지 않을 수 있습니다.");
+
     }
 
-    void Update()
+    private void Update()
     {
-        // 안전: EnemyManager/StageManager 준비 여부 확인
-        if (EnemyManager.Instance == null)
-        {
-            // 적 관리자가 없으면 타겟 갱신 불가. 단, 발사 간격 기반 무조건 발사 옵션을 유지하려면 계속 진행할 수 있음.
-        }
-        bulletCount = stageManager.context.attackCount;
+        if (StageManager.Instance == null || StageManager.Instance.context == null)
+            return;
+
+        AttackRuntimeData attack = StageManager.Instance.context.RuntimeAttack;
+        if (attack == null)
+            return;
 
         attackTimer += Time.deltaTime;
         targetCheckTimer += Time.deltaTime;
 
-        if (attackTimer >= StageManager.Instance.context.attackInterval)
+        if (attackTimer >= attack.attackInterval)
         {
-            TryAttack();
+            TryAttack(attack);
         }
     }
 
-    void TryAttack()
+    private void TryAttack(AttackRuntimeData attack)
     {
-        // 안전 체크: StageManager 필요
-        if (stageManager == null && StageManager.Instance != null)
-            stageManager = StageManager.Instance;
+        currentTarget = EnemyManager.Instance.GetClosestEnemy(
+            transform.position,
+            attack.range
+        );
 
-        if (stageManager == null)
-        {
-            Debug.LogWarning("발사 실패: StageManager 미설정");
-            attackTimer = 0f; // 선택: 실패 시에도 타이머를 리셋하거나 리셋하지 않음
-            return;
-        }
-
-        currentTarget = EnemyManager.Instance.GetClosestEnemy(transform.position, StageManager.Instance.context.attackRange);
-        Shoot(currentTarget, bulletCount);
-        // Debug.Log("Attack!");
+        Shoot(currentTarget, attack.bulletCount, attack.bulletSpreadAngle);
         attackTimer = 0f;
     }
 
@@ -75,7 +59,7 @@ public class Player_Shot : MonoBehaviour
         // 4. 총알 생성 루프
         for (int i = 0; i < bulletCount; i++)
         {
-            GameObject bullet = (stageManager != null) ? stageManager.GetBullet() : null;
+            GameObject bullet = (StageManager.Instance != null) ? StageManager.Instance.GetBullet() : null;
             if (bullet == null)
             {
                 Debug.LogWarning("총알을 풀에서 가져올 수 없습니다.");
@@ -99,15 +83,22 @@ public class Player_Shot : MonoBehaviour
         }
     }
 
-    public void OnDrawGizmosSelected()
+    private bool showRange;
+
+    private void OnDrawGizmos()
     {
-        // 발사/타겟 기준 위치
-        Vector3 origin = transform.position;
+        if (!showRange)
+            return;
 
-        // 최대 타겟 거리
+        if (StageManager.Instance == null ||
+            StageManager.Instance.context == null ||
+            StageManager.Instance.context.RuntimeAttack == null)
+            return;
+
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(origin, stageManager.context.attackRange);
+        Gizmos.DrawWireSphere(
+            transform.position,
+            StageManager.Instance.context.RuntimeAttack.range
+        );
     }
-
-
 }

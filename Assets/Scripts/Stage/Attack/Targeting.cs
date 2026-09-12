@@ -50,7 +50,7 @@ public class Targeting : MonoBehaviour
     }
     void UpdateTarget()
     {
-        CurrentTarget = EnemyManager.Instance.GetClosestEnemy(transform.position, StageManager.Instance.context.attackRange);
+        CurrentTarget = EnemyManager.Instance.GetClosestEnemy(transform.position, StageManager.Instance.context.RuntimeAttack.range);
 
         // 실제 타겟팅 로직 대신 임시로 마커 보이게만 처리
         if (CurrentTarget != null)
