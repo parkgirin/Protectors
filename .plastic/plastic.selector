@@ -1,4 +1,4 @@
-repository "Protectors_MemoryError 2025-09-12_15-28-56/Protectors_MemoryError@14569585167748@cloud"
+repository "Protectors_MemoryError/Protectors_MemoryError@14569585167748@cloud"
   path "/"
     br "/main"
     co "/main"
