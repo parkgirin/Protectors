@@ -15,6 +15,7 @@ public class EnemyManager : MonoBehaviour
 
     // 풀링용 리스트
     public List<GameObject> enemyPool = new List<GameObject>();
+    private readonly HashSet<GameObject> queuedEnemies = new HashSet<GameObject>();
 
     private void Awake()
     {
@@ -29,17 +30,29 @@ public class EnemyManager : MonoBehaviour
 
     private void Update()
     {
-        // 대기 적 활성화
-        if (pendingEnemies.Count > 0 && activeEnemies.Count < maxActiveEnemies)
+        FillActiveSlots();
+    }
+
+    // Pending enemies are already part of the stage total. Move them onto the
+    // screen only when the Inspector-authored active-enemy limit allows it.
+    private void FillActiveSlots()
+    {
+        while (pendingEnemies.Count > 0 && activeEnemies.Count < maxActiveEnemies)
         {
             //Debug.Log($"[OnEnemyDestroyed] 대기 적 활성화, 남은 적 {pendingEnemies.Count - 1}");
             GameObject next = pendingEnemies.Dequeue();
+            queuedEnemies.Remove(next);
             ActivateEnemy(next);
         }
     }
 
     void InitializePool()
     {
+        if (enemyPrefab == null || enemyPrefab.Count == 0)
+        {
+            Debug.LogError("[EnemyManager] enemyPrefab is not assigned.");
+            return;
+        }
         for (int i = 0; i < maxEnemies; i++)
         {
             // EnemyManager의 자식으로 생성
@@ -63,8 +76,9 @@ public class EnemyManager : MonoBehaviour
     // --------------------------------
     // SpawnEnemies: 풀에서 적 가져와 활성화 / 대기열 관리
     // --------------------------------
-    public void SpawnEnemies(int count)
+    public int SpawnEnemies(int count)
     {
+        int spawned = 0;
         for (int i = 0; i < count; i++)
         {
             GameObject enemy = GetNextEnemyFromPool();
@@ -81,9 +95,14 @@ public class EnemyManager : MonoBehaviour
             else
             {
                 pendingEnemies.Enqueue(enemy);
+                queuedEnemies.Add(enemy);
             }
+            spawned++;
         }
+        return spawned;
     }
+
+    public int PendingEnemyCount => pendingEnemies.Count;
 
     public void ActivateEnemy(GameObject enemy)
     {
@@ -97,7 +116,7 @@ public class EnemyManager : MonoBehaviour
     {
         foreach (var enemy in enemyPool)
         {
-            if (!enemy.activeSelf)
+            if (!enemy.activeSelf && !queuedEnemies.Contains(enemy))
                 return enemy;
         }
         Debug.LogWarning("[GetNextEnemyFromPool] 풀에 남은 Enemy 없음!");
@@ -122,9 +141,11 @@ public class EnemyManager : MonoBehaviour
     public void OnEnemyDestroyed(GameObject enemy)
     {
         UnregisterEnemy(enemy);
+        queuedEnemies.Remove(enemy);
 
         // 죽은 적 비활성화
         enemy.SetActive(false);
+        FillActiveSlots();
     }
 
     public GameObject GetClosestEnemy(Vector3 fromPosition, float maxTargetDistance)
@@ -137,7 +158,7 @@ public class EnemyManager : MonoBehaviour
         {
             if (enemy == null || !enemy.activeSelf) continue;
 
-            float sqrDistance = (enemy.transform.position - fromPosition/2).sqrMagnitude;
+            float sqrDistance = (enemy.transform.position - fromPosition).sqrMagnitude;
 
             // 거리 제한 적용
             if (sqrDistance > maxTargetDistance * maxTargetDistance)

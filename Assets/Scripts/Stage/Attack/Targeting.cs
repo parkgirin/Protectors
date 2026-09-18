@@ -42,7 +42,7 @@ public class Targeting : MonoBehaviour
     void Move()
     {
         // 왕복 이동
-        if (targetMarker.activeSelf)
+        if (targetMarker != null && targetMarker.activeSelf)
         {
             float x = Mathf.PingPong(Time.time * moveSpeed, moveRange * 2) - moveRange;
             targetMarker.transform.position = startPos + new Vector3(x, 0f, 0f);
@@ -50,9 +50,20 @@ public class Targeting : MonoBehaviour
     }
     void UpdateTarget()
     {
-        CurrentTarget = EnemyManager.Instance.GetClosestEnemy(transform.position, StageManager.Instance.context.RuntimeAttack.range);
+        if (EnemyManager.Instance == null || StageManager.Instance == null ||
+            StageManager.Instance.context == null || StageManager.Instance.context.RuntimeAttack == null)
+        {
+            CurrentTarget = null;
+            if (targetMarker != null) targetMarker.SetActive(false);
+            return;
+        }
+
+        CurrentTarget = EnemyManager.Instance.GetClosestEnemy(
+            transform.position,
+            StageManager.Instance.context.RuntimeAttack.EffectiveRange);
 
         // 실제 타겟팅 로직 대신 임시로 마커 보이게만 처리
+        if (targetMarker == null) return;
         if (CurrentTarget != null)
         {
             targetMarker.SetActive(true);

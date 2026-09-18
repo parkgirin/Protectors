@@ -13,6 +13,7 @@ public class AttackDataSO : ScriptableObject
     [Header("표시")]
     public Sprite icon;
     public Sprite attackSprite;
+    [Min(0.01f)] public float attackSpriteScale = 1f;
     [TextArea]
     public string description;
 
@@ -33,6 +34,7 @@ public class AttackDataSO : ScriptableObject
 
     [Header("성장")]
     public List<GrowthNode> growthNodes = new();
+    public AttackGrowthTreeSO growthTree;
 }
 
 public enum AttackType

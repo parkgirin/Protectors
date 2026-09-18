@@ -11,6 +11,8 @@ public class Enemy : MonoBehaviour
     public float speed = 1f;
     public bool attacking = false;
     public float attackDelay = 1f;
+    private float baseSpeed;
+    private bool isDying;
 
     private StageManager stageManager;
     public GameObject dieAnime;
@@ -22,15 +24,17 @@ public class Enemy : MonoBehaviour
         if (stageManager == null)
             Debug.LogWarning("StageManager를 찾을 수 없습니다. 스테이지 관련 기능이 동작하지 않을 수 있습니다.");
         hp = HP_Set;
-        TMPro_hp.text = hp.ToString();
+        isDying = false;
+        if (TMPro_hp != null) TMPro_hp.text = hp.ToString();
 
         // 초기 위치 설정
         float x = Random.Range(-2.3f, 2.3f);
         this.transform.position = new Vector3(x, 4f, 0);
 
-        float randomFactor = Random.Range(0.8f, 1.2f);
-        speed *= randomFactor;
+        if (baseSpeed <= 0f) baseSpeed = speed;
+        speed = baseSpeed * Random.Range(0.8f, 1.2f);
         attacking = false;
+        attackDelay = 1f;
     }
 
     void Update()
@@ -57,6 +61,8 @@ public class Enemy : MonoBehaviour
 
     public void Die()
     {
+        if (isDying) return;
+        isDying = true;
         if (StageManager.Instance != null)
             StageManager.Instance.OnEnemyDefeated();
 
@@ -83,7 +89,7 @@ public class Enemy : MonoBehaviour
     public void TakeDamage(float damage)
     {
         hp -= damage;
-        TMPro_hp.text = hp.ToString();
+        if (TMPro_hp != null) TMPro_hp.text = hp.ToString();
 
         if (hp <= 0)
         {
@@ -93,7 +99,8 @@ public class Enemy : MonoBehaviour
 
     public void Attack()
     {
-        stageManager.OnWallHit(1f);
+        StageManager manager = StageManager.Instance != null ? StageManager.Instance : stageManager;
+        if (manager != null) manager.OnWallHit(1f);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

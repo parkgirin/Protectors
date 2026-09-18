@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0fa8ee04c91c9642910facc7e28699d, type: 3}
+  m_Name: 스피어 트랩 성장 트리
+  m_EditorClassIdentifier: 
+  nodes:
+  - id: trap_damage
+    displayName: 압축 코어
+    description: 트랩 압축 피해 +30%.
+    effect: 0
+    value: 1.3
+    minimumLevel: 0
+    minimumDamage: 0
+    minimumRange: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    requiredBranch: 0
+    resultBranch: 0
+    exclusiveGroup: 
+  - id: trap_radius
+    displayName: 확장 클램프
+    description: 트랩 발동 범위 +25%.
+    effect: 2
+    value: 1.25
+    minimumLevel: 1
+    minimumDamage: 0
+    minimumRange: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    requiredBranch: 0
+    resultBranch: 0
+    exclusiveGroup: 
+  - id: trap_multi
+    displayName: 연쇄 트랩
+    description: 트랩 설치 수 +1.
+    effect: 3
+    value: 1
+    minimumLevel: 3
+    minimumDamage: 0
+    minimumRange: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    requiredBranch: 0
+    resultBranch: 0
+    exclusiveGroup: 

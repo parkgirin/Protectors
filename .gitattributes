@@ -1,0 +1,17 @@
+# Keep repository text files consistent across Windows and Unix environments.
+* text=auto eol=lf
+
+# Never apply line-ending conversion to binary assets.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.psd binary
+*.wav binary
+*.mp3 binary
+*.ogg binary
+*.mp4 binary
+*.fbx binary
+*.dll binary
+*.exe binary
+*.zip binary

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c67243a656190254eb78a43bbeea9365, type: 3}
+  m_Name: Turret
+  m_EditorClassIdentifier: 
+  id: mars_turret
+  attackName: 터렛 설치
+  icon: {fileID: 0}
+  attackSprite: {fileID: 0}
+  description: 고정형 자동 터렛을 설치합니다.
+  damage: 1.5
+  attackInterval: 0.45
+  range: 4
+  bulletCount: 1
+  bulletSpreadAngle: 0
+  bulletHP: 1
+  bulletSpeed: 9
+  attackType: 2
+  tags: []
+  growthNodes: []
+  growthTree: {fileID: 11400000, guid: 25d6f1b943bd417ab805bb6c56b11b9a, type: 2}

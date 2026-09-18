@@ -5,14 +5,46 @@ public class Bullet : MonoBehaviour
 {
     private float speed;
     private int bullet_HP;        // 현재 내구도
+    private AttackRuntimeData attackData;
+    private SpriteRenderer spriteRenderer;
+    private Sprite defaultSprite;
+    private Vector3 defaultLocalScale;
+
+    private void Awake()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null) defaultSprite = spriteRenderer.sprite;
+        defaultLocalScale = transform.localScale;
+    }
+
+    public void Initialize(AttackRuntimeData attack)
+    {
+        attackData = attack;
+        speed = attack.EffectiveBulletSpeed;
+        bullet_HP = attack.bulletHP;
+        ApplyAttackSprite();
+    }
+
+    private void ApplyAttackSprite()
+    {
+        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null) return;
+
+        Sprite attackSprite = attackData != null && attackData.source != null
+            ? attackData.source.attackSprite
+            : null;
+        spriteRenderer.sprite = attackSprite != null ? attackSprite : defaultSprite;
+        float scale = attackData != null ? attackData.EffectiveAttackSpriteScale : 1f;
+        transform.localScale = defaultLocalScale * scale;
+    }
 
     private void OnEnable()
     {
         // 총알 이동 속도 세팅
-        speed = StageManager.Instance != null ? StageManager.Instance.context.RuntimeAttack.bulletSpeed : 5f;
-
-        // 매번 풀에서 꺼낼 때 내구도 초기화
-        bullet_HP = StageManager.Instance != null ? StageManager.Instance.context.RuntimeAttack.bulletHP : 1;
+        if (attackData == null && StageManager.Instance != null)
+            attackData = StageManager.Instance.context.RuntimeAttack;
+        if (attackData != null) Initialize(attackData);
+        else { speed = 5f; bullet_HP = 1; }
     }
 
     private void Update()
@@ -40,7 +72,7 @@ public class Bullet : MonoBehaviour
                 Enemy enemy = collision.GetComponent<Enemy>();
                 if (enemy != null)
                 {
-                    enemy.TakeDamage(StageManager.Instance.context.RuntimeAttack.damage);
+                    if (attackData != null) enemy.TakeDamage(attackData.EffectiveDamage);
                 }
 
                 // 총알 내구도 감소

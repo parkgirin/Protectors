@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0fa8ee04c91c9642910facc7e28699d, type: 3}
+  m_Name: 포격 성장 트리
+  m_EditorClassIdentifier: 
+  nodes:
+  - id: artillery_damage_1
+    displayName: 강화 포탄
+    description: 포격 공격력 +25%.
+    effect: 0
+    value: 1.25
+    minimumLevel: 0
+    minimumDamage: 0
+    minimumRange: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    requiredBranch: 0
+    resultBranch: 0
+    exclusiveGroup: 
+  - id: artillery_salvo_1
+    displayName: 이중 탄막
+    description: 탄막 수 +1. 추가 탄막은 고정 각도로 발사됩니다.
+    effect: 3
+    value: 1
+    minimumLevel: 1
+    minimumDamage: 0
+    minimumRange: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    requiredBranch: 0
+    resultBranch: 0
+    exclusiveGroup: 
+  - id: artillery_salvo_2
+    displayName: 삼중 탄막
+    description: 탄막 수 +1. 추가 탄막은 고정 각도로 발사됩니다.
+    effect: 3
+    value: 1
+    minimumLevel: 3
+    minimumDamage: 0
+    minimumRange: 0
+    minimumBulletCount: 2
+    minimumPierce: 0
+    requiredBranch: 0
+    resultBranch: 0
+    exclusiveGroup: 
+  - id: artillery_pierce
+    displayName: 철갑 포탄
+    description: 관통 수 +1.
+    effect: 4
+    value: 1
+    minimumLevel: 3
+    minimumDamage: 0
+    minimumRange: 0
+    minimumBulletCount: 2
+    minimumPierce: 0
+    requiredBranch: 0
+    resultBranch: 0
+    exclusiveGroup: artillery_special
+  - id: artillery_rapid
+    displayName: 속사 포격
+    description: 공격 속도 +35%, 공격력 -20%.
+    effect: 6
+    value: 0
+    minimumLevel: 3
+    minimumDamage: 0
+    minimumRange: 0
+    minimumBulletCount: 2
+    minimumPierce: 0
+    requiredBranch: 0
+    resultBranch: 1
+    exclusiveGroup: artillery_special
