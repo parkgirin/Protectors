@@ -1,22 +1,103 @@
-using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class HomeManager : MonoBehaviour
 {
+    [SerializeField] private TextMeshProUGUI highScoreText;
+    [SerializeField] private TextMeshProUGUI experimentLabDataText;
+    [SerializeField] private HomeStageSelectionUI stageSelection;
+    [SerializeField] private Transform experimentLabArea;
+
+    private readonly Dictionary<PaletteColorApplicator, PaletteColor> experimentLabBaseColors =
+        new Dictionary<PaletteColorApplicator, PaletteColor>();
+
+    private void Awake()
+    {
+        CacheExperimentLabColors();
+    }
+
+    private void Start()
+    {
+        if (stageSelection != null)
+        {
+            stageSelection.Refresh();
+        }
+        else
+        {
+            RefreshHighScore();
+        }
+        RefreshEndlessLabData();
+        RefreshExperimentLabColors();
+    }
+
+    private void RefreshHighScore()
+    {
+        if (highScoreText == null || GameManager.Instance == null) return;
+
+        GameManager gameManager = GameManager.Instance;
+        int completionPercent = gameManager.highScore > 0
+            ? 100
+            : 0;
+        highScoreText.text = $"ìµœê³  ë‹¬ì„±ë¥  {completionPercent}%";
+    }
+
     public void SetupStage()
     {
-        GameManager.Instance.UnlockSkill("Fireball");
-        GameManager.Instance.UnlockSpecialCharacter("Mars");
+        if (stageSelection != null && !stageSelection.CanStartSelectedStage) return;
 
-        GameManager.Instance.AddEquipmentEffect("CriticalBoost");
-        GameManager.Instance.AddAttackEffect("Burn");
+        string sceneName = stageSelection != null
+            ? stageSelection.SelectedStage.SceneName
+            : "Stage";
+        StartStage(GameManager.PlayMode.Stage, sceneName);
+    }
 
-        // ¾À ÀüÈ¯ Àü¿¡ ½ºÅ×ÀÌÁö ÃÊ±âÈ­
+    public void SetupEndlessLab()
+    {
+        RefreshEndlessLabData();
+        StartStage(GameManager.PlayMode.EndlessLab, "Stage");
+    }
+
+    private void RefreshEndlessLabData()
+    {
+        if (experimentLabDataText == null || GameManager.Instance == null) return;
+
+        GameManager gameManager = GameManager.Instance;
+        experimentLabDataText.text = $"ìµœê³  ì ìˆ˜ {gameManager.endlessHighScore:N0}\nìµœê³  ì›¨ì´ë¸Œ {gameManager.endlessBestWave}";
+    }
+
+    private void CacheExperimentLabColors()
+    {
+        if (experimentLabArea == null) return;
+
+        foreach (PaletteColorApplicator colorApplicator in
+                 experimentLabArea.GetComponentsInChildren<PaletteColorApplicator>(true))
+        {
+            experimentLabBaseColors[colorApplicator] = colorApplicator.ColorRole;
+        }
+    }
+
+    private void RefreshExperimentLabColors()
+    {
+        if (experimentLabBaseColors.Count == 0) CacheExperimentLabColors();
+
+        bool isRegistered = GameManager.Instance != null && GameManager.Instance.HasClearedStage01;
+        foreach (KeyValuePair<PaletteColorApplicator, PaletteColor> entry in experimentLabBaseColors)
+        {
+            if (entry.Key == null) continue;
+
+            entry.Key.ColorRole = PaletteColorRoleUtility.GetRegistrationColor(
+                entry.Value,
+                isRegistered);
+        }
+    }
+
+    private void StartStage(GameManager.PlayMode playMode, string sceneName)
+    {
+        // ê³µê°œ ë¹Œë“œëŠ” ë³„ë„ í•´ê¸ˆì´ë‚˜ ì¥ë¹„ íš¨ê³¼ ì—†ì´ í¬ê²© í•˜ë‚˜ë¡œ ì‹œì‘í•œë‹¤.
+        GameManager.Instance.SetPlayMode(playMode);
         GameManager.Instance.InitializeStage();
-
-        // ½ºÅ×ÀÌÁö ¾ÀÀ¸·Î ÀüÈ¯
-        SceneManager.LoadScene("Stage");
+        SceneManager.LoadScene(sceneName);
     }
 }

@@ -1,4 +1,3 @@
-repository "Protectors_MemoryError/Protectors_MemoryError@14569585167748@cloud"
+rep "Protectors_MemoryError/Protectors_MemoryError@14569585167748@cloud"
   path "/"
-    br "/main"
-    co "/main"
+    smartbranch "/main"

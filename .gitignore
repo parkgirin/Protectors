@@ -64,3 +64,6 @@ Assets/StreamingAssets/aa.meta
 Assets/StreamingAssets/aa/*
 
 # Plastic SCM files are intentionally tracked for this project.
+
+# Office temporary/lock files
+~$*

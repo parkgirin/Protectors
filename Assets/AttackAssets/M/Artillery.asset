@@ -22,10 +22,10 @@ MonoBehaviour:
   attackInterval: 0.7
   range: 5
   bulletCount: 1
-  bulletSpreadAngle: 0
+  bulletSpreadAngle: 8
   bulletHP: 1
   bulletSpeed: 10
   attackType: 0
-  tags: 00000000
+  tags: []
   growthNodes: []
   growthTree: {fileID: 11400000, guid: 9d63d3cc68724e1e9ed96fa0379e1b31, type: 2}

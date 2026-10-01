@@ -7,18 +7,18 @@ public class ProjectileAttackExecutor : IAttackExecutor
         GameObject target = context.FindTarget();
         if (target == null || StageManager.Instance == null) return false;
 
-        int count = context.attack.bulletCount;
+        int count = context.attack.EffectiveBulletCount;
         Vector3 direction = (target.transform.position - context.owner.position).normalized;
         float baseAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        const float step = 8f;
+        float step = Mathf.Clamp(context.attack.bulletSpreadAngle, 1f, 45f);
         bool fired = false;
 
         for (int i = 0; i < count; i++)
         {
             GameObject bullet = StageManager.Instance.GetBullet();
             if (bullet == null) continue;
-            // The first shell alone uses the current target. Extra shells fan out
-            // alternately left/right from that first shell's direction.
+            // 첫 탄환만 현재 표적을 향하고 추가 탄환은 첫 탄환의 방향을 기준으로
+            // 좌우에 번갈아 퍼지도록 발사한다.
             float angle = baseAngle;
             if (i > 0)
             {
@@ -34,11 +34,12 @@ public class ProjectileAttackExecutor : IAttackExecutor
             bullet.SetActive(true);
             fired = true;
         }
+        if (fired) AudioManager.Instance?.PlaySfx(GameSfx.AttackFire);
         return fired;
     }
 }
 
-// A safe placeholder: data can be loaded before the turret/trap prefabs are implemented.
+// 포탑과 함정 프리팹 구현 전에도 데이터를 안전하게 불러오기 위한 임시 실행기다.
 public class SummonAttackExecutor : IAttackExecutor
 {
     public bool Execute(AttackExecutionContext context) { return false; }

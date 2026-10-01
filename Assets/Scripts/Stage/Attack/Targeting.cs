@@ -10,9 +10,9 @@ public class Targeting : MonoBehaviour
     public GameObject targetMarker;
     public GameObject targetPrefab;
 
-    // ¿Õº¹ ÀÌµ¿¿ë º¯¼ö
-    public float moveRange = 2f;   // ¿Õº¹ ¹üÀ§
-    public float moveSpeed = 2f;   // ÀÌµ¿ ¼Óµµ
+    // ì™•ë³µ ì´ë™ìš© ë³€ìˆ˜
+    public float moveRange = 2f;   // ì™•ë³µ ë²”ìœ„
+    public float moveSpeed = 2f;   // ì´ë™ ì†ë„
     private Vector3 startPos;
 
     private void OnEnable()
@@ -35,13 +35,13 @@ public class Targeting : MonoBehaviour
             timer = 0f;
         }
 
-        // Å¸°ÙÀÌ ¾ø´Ù¸é ÀÓ½Ã ¿Õº¹ ÀÌµ¿ ÇÔ¼ö
+        // íƒ€ê²Ÿì´ ì—†ë‹¤ë©´ ì„ì‹œ ì™•ë³µ ì´ë™ í•¨ìˆ˜
         if (CurrentTarget == null) Move();
     }
 
     void Move()
     {
-        // ¿Õº¹ ÀÌµ¿
+        // ì™•ë³µ ì´ë™
         if (targetMarker != null && targetMarker.activeSelf)
         {
             float x = Mathf.PingPong(Time.time * moveSpeed, moveRange * 2) - moveRange;
@@ -62,7 +62,7 @@ public class Targeting : MonoBehaviour
             transform.position,
             StageManager.Instance.context.RuntimeAttack.EffectiveRange);
 
-        // ½ÇÁ¦ Å¸°ÙÆÃ ·ÎÁ÷ ´ë½Å ÀÓ½Ã·Î ¸¶Ä¿ º¸ÀÌ°Ô¸¸ Ã³¸®
+        // ì‹¤ì œ íƒ€ê²ŸíŒ… ë¡œì§ ëŒ€ì‹  ì„ì‹œë¡œ ë§ˆì»¤ ë³´ì´ê²Œë§Œ ì²˜ë¦¬
         if (targetMarker == null) return;
         if (CurrentTarget != null)
         {
@@ -71,7 +71,7 @@ public class Targeting : MonoBehaviour
         }
         else
         {
-            // ÀÓ½Ã Å×½ºÆ®¿ëÀ¸·Î Å¸°ÙÀÌ ¾ø¾îµµ È°¼ºÈ­
+            // ì„ì‹œ í…ŒìŠ¤íŠ¸ìš©ìœ¼ë¡œ íƒ€ê²Ÿì´ ì—†ì–´ë„ í™œì„±í™”
             targetMarker.SetActive(true);
         }
     }

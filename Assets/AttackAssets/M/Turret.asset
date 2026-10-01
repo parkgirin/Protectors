@@ -25,6 +25,6 @@ MonoBehaviour:
   bulletHP: 1
   bulletSpeed: 9
   attackType: 2
-  tags: []
+  tags: 02000000
   growthNodes: []
   growthTree: {fileID: 11400000, guid: 25d6f1b943bd417ab805bb6c56b11b9a, type: 2}

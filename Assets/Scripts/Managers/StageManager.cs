@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class StageManager : MonoBehaviour
 {
+    private const string FastForwardUnlockedKey = "Stage.FastForwardUnlocked";
+    private static readonly float[] FastForwardSpeeds = { 1f, 2f, 3f };
+
     public static StageManager Instance;
 
     public GameManager GameManager;
@@ -13,6 +17,7 @@ public class StageManager : MonoBehaviour
     [Header("References")]
     public UIManager uiManager;
     public GameObject player;
+    public GameColorPalette colorPalette;
 
     [Header("Controllers")]
     public StageContext context;
@@ -26,9 +31,9 @@ public class StageManager : MonoBehaviour
     public IReadOnlyList<AttackDataSO> UnlockableAttacks => unlockableAttacks;
 
 
-    public float WallHP = 100f; // º® Ã¼·Â
+    public float WallHP = 100f; // ë²½ ì²´ë ¥
 
-    // ½ºÅ×ÀÌÁö Á¾·á ÈÄ ¿ÜºÎ·Î Àü´ŞµÉ º¸»ó
+    // ìŠ¤í…Œì´ì§€ ì¢…ë£Œ í›„ ì™¸ë¶€ë¡œ ì „ë‹¬ë  ë³´ìƒ
     public int experience = 0;
     public int maxExperience = 0;
     public int gold = 0;
@@ -46,10 +51,10 @@ public class StageManager : MonoBehaviour
     public int chocolate = 0;
     public int maxchocolate = 0;
 
-    // Àû ÀüÃ¼ Á¦°Å¿ë bool
+    // ì  ì „ì²´ ì œê±°ìš© bool
     public bool DestroyAll = false;
 
-    // ¿şÀÌºê ¼ö
+    // ì›¨ì´ë¸Œ ìˆ˜
     public int currentWave = 1;
     public int maxWaves;
     private int lastWave = 0;
@@ -59,35 +64,52 @@ public class StageManager : MonoBehaviour
     public GameObject enemyManager;
     public GameObject uiCanvas;
 
-    [Header("Àû µîÀå Á¦ÇÑ")]
-    public int totalEnemiesThisStage; // ½ºÅ×ÀÌÁö ÀüÃ¼ µîÀå °¡´É Àû ¼ö
-    private int spawnedEnemies = 0;         // Áö±İ±îÁö ½ºÆùµÈ Àû ¼ö
+    [Header("ì  ë“±ì¥ ì œí•œ")]
+    public int totalEnemiesThisStage; // ìŠ¤í…Œì´ì§€ ì „ì²´ ë“±ì¥ ê°€ëŠ¥ ì  ìˆ˜
+    private int spawnedEnemies = 0;         // ì§€ê¸ˆê¹Œì§€ ìŠ¤í°ëœ ì  ìˆ˜
 
-    [Header("Àû »ı¼º ¼³Á¤")]
-    public int enemiesPerSpawn;     // ÇÑ ¹ø¿¡ ½ºÆùÇÒ Àû ¼ö
-    public float spawnInterval;     // ½ºÆù ¿äÃ» °£°İ (ÃÊ)
+    [Header("ì  ìƒì„± ì„¤ì •")]
+    public int enemiesPerSpawn;     // í•œ ë²ˆì— ìŠ¤í°í•  ì  ìˆ˜
+    public float spawnInterval;     // ìŠ¤í° ìš”ì²­ ê°„ê²© (ì´ˆ)
 
-    // Ã³Ä¡ÇÑ Àû ¼ö
+    [Header("ì›¨ì´ë¸Œë³„ ì  ì„±ì¥")]
+    [Min(1f)] public float enemyHealthMultiplierPerWave = 1.12f;
+    [Min(1f)] public float enemyAttackMultiplierPerWave = 1.08f;
+    [Min(1f)] public float enemyCountMultiplierPerWave = 1.1f;
+
+    public float CurrentEnemyHealthMultiplier => GetWaveMultiplier(enemyHealthMultiplierPerWave);
+    public float CurrentEnemyAttackMultiplier => GetWaveMultiplier(enemyAttackMultiplierPerWave);
+    public float CurrentEnemyCountMultiplier => GetWaveMultiplier(enemyCountMultiplierPerWave);
+    private bool IsEndlessMode => GameManager != null &&
+        GameManager.CurrentPlayMode == global::GameManager.PlayMode.EndlessLab;
+
+    // ì²˜ì¹˜í•œ ì  ìˆ˜
     public int enemiesDefeated = 0;
     public float WaveExperience = 0;
 
     public Targeting targeting;
 
-    // bullet pooling
+    // íƒ„í™˜ ì˜¤ë¸Œì íŠ¸ í’€
     public GameObject bulletPrefab;
     public List<GameObject> bulletPool = new List<GameObject>();
+    [SerializeField, Min(0)] private int initialAreaEffectPoolSize = 8;
+    private readonly List<ProjectileAreaEffect> areaEffectPool = new List<ProjectileAreaEffect>();
 
-    // º¸½º Ã³Ä¡ ÈÄ ÂüÀÌ µÇ´Â bool
+    // ë³´ìŠ¤ ì²˜ì¹˜ í›„ ì°¸ì´ ë˜ëŠ” bool
     public bool isBossDefeated = false;
 
     public bool GameOvered = false;
     private bool stageCompleted;
-    private bool rewardsGranted;
 
-    // UI
+    // ì‚¬ìš©ì ì¸í„°í˜ì´ìŠ¤
     public GameObject PausePanel;
     public GameObject RewardPanel;
     public GameObject UpgradePanel;
+    public Button fastButton;
+    private int fastForwardSpeedIndex;
+    private Graphic fastButtonIcon;
+    private PaletteColorApplicator fastButtonPalette;
+    private PaletteColorApplicator fastButtonIconPalette;
 
     /*public enum RewardType
     {
@@ -103,37 +125,47 @@ public class StageManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        AddAreaEffects(initialAreaEffectPoolSize);
+        ConfigureFastForwardButton();
     }
 
     private void OnEnable()
     {
-        // GameManager È®ÀÎ
+        // GameManager í™•ì¸
         if (GameManager.Instance == null)
         {
-            Debug.LogWarning("GameManager ¾øÀ½ ¡æ Stage ´Üµ¶ ½ÇÇà. HomeÀ¸·Î ÀÌµ¿ÇÕ´Ï´Ù.");
+            Debug.LogWarning("GameManager ì—†ìŒ â†’ Stage ë‹¨ë… ì‹¤í–‰. Homeìœ¼ë¡œ ì´ë™í•©ë‹ˆë‹¤.");
             SceneManager.LoadScene("Home");
             return;
         }
 
         GameManager = GameManager.Instance;
 
-        // ½ºÅ×ÀÌÁö ÃÊ±âÈ­
+        // ìŠ¤í…Œì´ì§€ ì´ˆê¸°í™”
         InitializeStage();
     }
 
-    // ½ºÅ×ÀÌÁö ÃÊ±âÈ­
+    // ìŠ¤í…Œì´ì§€ ì´ˆê¸°í™”
     private void InitializeStage()
     {
-        // UI Manager ÂüÁ¶ È®º¸
+        fastForwardSpeedIndex = 0;
+        Time.timeScale = FastForwardSpeeds[fastForwardSpeedIndex];
+        RefreshFastForwardButton();
+        // UI Manager ì°¸ì¡° í™•ë³´
         if (uiManager == null)
         {
             uiManager = FindObjectOfType<UIManager>();
         }
 
-        // ÇÊ¼ö ÂüÁ¶ È®ÀÎ
+        Camera stageCamera = Camera.main;
+        FixedAspectViewport fixedViewport = GetComponent<FixedAspectViewport>();
+        if (fixedViewport == null) fixedViewport = gameObject.AddComponent<FixedAspectViewport>();
+        fixedViewport.Configure(stageCamera);
+
+        // í•„ìˆ˜ ì°¸ì¡° í™•ì¸
         if (context == null)
         {
-            Debug.LogError("StageContext°¡ ¿¬°áµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogError("StageContextê°€ ì—°ê²°ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             return;
         }
 
@@ -148,11 +180,11 @@ public class StageManager : MonoBehaviour
 
         if (attackBuilder == null)
         {
-            Debug.LogError("attackBuilder°¡ ¿¬°áµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogError("attackBuilderê°€ ì—°ê²°ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // Every stage constructs fresh runtime copies. SO assets are never mutated.
+        // ìŠ¤í…Œì´ì§€ë§ˆë‹¤ ìƒˆ ëŸ°íƒ€ì„ ë³µì‚¬ë³¸ì„ ë§Œë“¤ë©° ì›ë³¸ SO ì—ì…‹ì€ ë³€ê²½í•˜ì§€ ì•ŠëŠ”ë‹¤.
         List<AttackRuntimeData> runtimeAttacks = new List<AttackRuntimeData>();
         foreach (AttackDataSO data in startingAttacks)
             if (data != null) runtimeAttacks.Add(attackBuilder.Build(data));
@@ -165,25 +197,31 @@ public class StageManager : MonoBehaviour
         attackData = context.RuntimeAttack;
 
         Debug.Log(
-            $"[Stage Init] °ø°İ ¼ö {context.RuntimeAttacks.Count}, °ø°İ·Â {attackData.damage}, " +
-            $"¹üÀ§ {attackData.range}, " +
-            $"°ø°İ °£°İ {attackData.attackInterval}, " +
-            $"ÅºÈ¯ ¼ö {attackData.bulletCount}, " +
-            $"ÅºÈ¯ ¼Óµµ {attackData.bulletSpeed}, " +
-            $"ÅºÈ¯ HP {attackData.bulletHP}"
+            $"[Stage Init] ê³µê²© ìˆ˜ {context.RuntimeAttacks.Count}, ê³µê²©ë ¥ {attackData.damage}, " +
+            $"ë²”ìœ„ {attackData.range}, " +
+            $"ê³µê²© ê°„ê²© {attackData.attackInterval}, " +
+            $"íƒ„í™˜ ìˆ˜ {attackData.bulletCount}, " +
+            $"íƒ„í™˜ ì†ë„ {attackData.bulletSpeed}, " +
+            $"íƒ„í™˜ HP {attackData.bulletHP}"
         );
 
-        // GameManager µ¥ÀÌÅÍ È®ÀÎ
+        // GameManager ë°ì´í„° í™•ì¸
         foreach (var skill in GameManager.skillUnlocked)
-            Debug.Log($"ÇØ±İµÈ ½ºÅ³: {skill.Key} ¡æ {skill.Value}");
+            Debug.Log($"í•´ê¸ˆëœ ìŠ¤í‚¬: {skill.Key} â†’ {skill.Value}");
 
+        // ì„ì‹œ í…ŒìŠ¤íŠ¸ UI ë° ì‹¤ì œ ìºë¦­í„° ìƒíƒœê°€ ì´ì „ ìŠ¤í…Œì´ì§€ì˜ í…ŒìŠ¤íŠ¸ ìƒíƒœë¥¼ ë¬¼ë ¤ë°›ì§€ ì•Šê²Œ í•œë‹¤.
+        AudioManager.Instance?.SetJupiterLayer(false);
+        AudioManager.Instance?.SetSaturnLayer(false);
         foreach (var character in GameManager.specialCharacterUnlocked)
-            Debug.Log($"ÇØ±İµÈ Ä³¸¯ÅÍ: {character.Key} ¡æ {character.Value}");
+        {
+            Debug.Log($"í•´ê¸ˆëœ ìºë¦­í„°: {character.Key} â†’ {character.Value}");
+            AudioManager.Instance?.SetCharacterLayer(character.Key, character.Value);
+        }
 
-        Debug.Log("Àåºñ È¿°ú: " + string.Join(", ", GameManager.equipmentEffects));
-        Debug.Log("°ø°İ È¿°ú: " + string.Join(", ", GameManager.attackEffects));
+        Debug.Log("ì¥ë¹„ íš¨ê³¼: " + string.Join(", ", GameManager.equipmentEffects));
+        Debug.Log("ê³µê²© íš¨ê³¼: " + string.Join(", ", GameManager.attackEffects));
 
-        // ½ºÅ×ÀÌÁö »óÅÂ ÃÊ±âÈ­
+        // ìŠ¤í…Œì´ì§€ ìƒíƒœ ì´ˆê¸°í™”
         if (totalEnemiesThisStage <= 0 || maxWaves <= 0 || enemiesPerSpawn <= 0 || spawnInterval <= 0f)
         {
             Debug.LogError("Stage spawn settings must be configured in the Inspector.");
@@ -198,14 +236,16 @@ public class StageManager : MonoBehaviour
         isBossDefeated = false;
         GameOvered = false;
         stageCompleted = false;
-        rewardsGranted = false;
         WallHP = 100f;
+        if (uiManager != null) uiManager.UpdateBarrierHealthUI(WallHP, 100f);
 
         if (PausePanel != null) PausePanel.SetActive(false);
         if (RewardPanel != null) RewardPanel.SetActive(false);
         if (UpgradePanel != null) UpgradePanel.SetActive(false);
 
-        // ÃÑ¾Ë Ç® ÃÊ±âÈ­
+        EnsurePopupBackdrops();
+
+        // ì´ì•Œ í’€ ì´ˆê¸°í™”
         bulletPool.Clear();
         if (bulletPrefab == null)
         {
@@ -214,7 +254,7 @@ public class StageManager : MonoBehaviour
         }
         AddBullets(3);
 
-        // ½ºÅ×ÀÌÁö ¿ÀºêÁ§Æ® È°¼ºÈ­
+        // ìŠ¤í…Œì´ì§€ ì˜¤ë¸Œì íŠ¸ í™œì„±í™”
         if (player != null)
             player.SetActive(true);
 
@@ -224,22 +264,27 @@ public class StageManager : MonoBehaviour
         if (uiCanvas != null)
             uiCanvas.SetActive(true);
 
-        Debug.Log("Stage ½ÃÀÛ: ¸ğµç ¿ÀºêÁ§Æ® È°¼ºÈ­µÊ!");
+        Debug.Log("Stage ì‹œì‘: ëª¨ë“  ì˜¤ë¸Œì íŠ¸ í™œì„±í™”ë¨!");
 
-        // Spawn values are authored per stage in the Inspector.
+        // ìƒì„± ê´€ë ¨ ìˆ˜ì¹˜ëŠ” ìŠ¤í…Œì´ì§€ë³„ë¡œ ì¸ìŠ¤í™í„°ì—ì„œ ì„¤ì •í•œë‹¤.
         currentWave = 1;
 
+        // ì „íˆ¬ê°€ ì‹œì‘ë˜ê¸° ì „ì— ì²« ê°•í™” í•œ ë²ˆì„ ì„ íƒí•˜ê²Œ í•œë‹¤.
+        Time.timeScale = 0f;
+        if (uiManager == null || !uiManager.UpdateUpgradeList())
+            ResumeGameplay();
         StartCoroutine(SpawnRequestRoutine());
-
-        Time.timeScale = 1f;
     }
 
     private IEnumerator SpawnRequestRoutine()
     {
-        while (spawnedEnemies < totalEnemiesThisStage && !isBossDefeated && !GameOvered)
+        while (Time.timeScale <= 0f && !GameOvered)
+            yield return null;
+        while ((IsEndlessMode || spawnedEnemies < totalEnemiesThisStage) && !isBossDefeated && !GameOvered)
         {
-            int spawned = SpawnEnemies(enemiesPerSpawn);
-            // A full pool is temporary: wait until a killed enemy returns to the pool.
+            int waveSpawnCount = Mathf.Max(1, Mathf.RoundToInt(enemiesPerSpawn * CurrentEnemyCountMultiplier));
+            int spawned = SpawnEnemies(waveSpawnCount);
+            // í’€ì´ ê°€ë“ ì°¬ ê²½ìš° ì²˜ì¹˜ëœ ì ì´ í’€ë¡œ ëŒì•„ì˜¬ ë•Œê¹Œì§€ ê¸°ë‹¤ë¦°ë‹¤.
             if (spawned == 0)
             {
                 yield return new WaitForSeconds(0.25f);
@@ -248,10 +293,10 @@ public class StageManager : MonoBehaviour
             yield return new WaitForSeconds(spawnInterval);
         }
 
-        Debug.Log("[StageManager] ¸ğµç Àû ½ºÆù ¿Ï·á");
+        Debug.Log("[StageManager] ëª¨ë“  ì  ìŠ¤í° ì™„ë£Œ");
     }
 
-    // Ç®¿¡¼­ »ç¿ë °¡´ÉÇÑ ÃÑ¾Ë °¡Á®¿À±â
+    // í’€ì—ì„œ ì‚¬ìš© ê°€ëŠ¥í•œ ì´ì•Œ ê°€ì ¸ì˜¤ê¸°
     public GameObject GetBullet()
     {
         foreach (var bullet in bulletPool)
@@ -260,14 +305,14 @@ public class StageManager : MonoBehaviour
                 return bullet;
         }
 
-        // ³²Àº ÃÑ¾Ë ¾øÀ¸¸é »õ·Î »ı¼º ÈÄ Ãß°¡
+        // ë‚¨ì€ ì´ì•Œ ì—†ìœ¼ë©´ ìƒˆë¡œ ìƒì„± í›„ ì¶”ê°€
         GameObject newBullet = Instantiate(bulletPrefab);
         newBullet.SetActive(false);
         bulletPool.Add(newBullet);
         return newBullet;
     }
 
-    // Ç®¿¡ ÃÑ¾Ë Ãß°¡
+    // í’€ì— ì´ì•Œ ì¶”ê°€
     public void AddBullets(int count)
     {
         for (int i = 0; i < count; i++)
@@ -278,77 +323,131 @@ public class StageManager : MonoBehaviour
         }
     }
 
+    public ProjectileAreaEffect GetAreaEffect()
+    {
+        foreach (ProjectileAreaEffect effect in areaEffectPool)
+            if (effect != null && !effect.gameObject.activeSelf)
+                return effect;
+
+        return CreateAreaEffect();
+    }
+
+    public void ReleaseAreaEffect(ProjectileAreaEffect effect)
+    {
+        if (effect == null || !areaEffectPool.Contains(effect)) return;
+        effect.gameObject.SetActive(false);
+    }
+
+    private void AddAreaEffects(int count)
+    {
+        for (int i = 0; i < count; i++) CreateAreaEffect();
+    }
+
+    private ProjectileAreaEffect CreateAreaEffect()
+    {
+        GameObject effectObject = new GameObject("í¬íƒ„ í­ë°œ");
+        effectObject.transform.SetParent(transform, false);
+        ProjectileAreaEffect effect = effectObject.AddComponent<ProjectileAreaEffect>();
+        effectObject.SetActive(false);
+        areaEffectPool.Add(effect);
+        return effect;
+    }
+
     public int SpawnEnemies(int requestedCount)
     {
         if (EnemyManager.Instance == null)
         {
-            Debug.LogError("EnemyManager ÀÎ½ºÅÏ½º ¾øÀ½! ½ºÆù ºÒ°¡");
+            Debug.LogError("EnemyManager ì¸ìŠ¤í„´ìŠ¤ ì—†ìŒ! ìŠ¤í° ë¶ˆê°€");
             return 0;
         }
 
-        // ³²Àº Àû ¼ö °è»ê
+        // ì¼ë°˜ ìŠ¤í…Œì´ì§€ëŠ” ì´ ë“±ì¥ ìˆ˜ë¥¼ ì œí•œí•˜ê³ , ì‹¤í—˜ì‹¤ ë¬´í•œëª¨ë“œëŠ” ë§¤ ìš”ì²­ë§ˆë‹¤ ê³„ì† ìƒì„±í•œë‹¤.
         int remaining = totalEnemiesThisStage - spawnedEnemies;
-        if (remaining <= 0)
+        if (!IsEndlessMode && remaining <= 0)
         {
-            Debug.Log("½ºÅ×ÀÌÁö ÀüÃ¼ Àû ½ºÆù ¿Ï·á");
+            Debug.Log("ìŠ¤í…Œì´ì§€ ì „ì²´ ì  ìŠ¤í° ì™„ë£Œ");
             return 0;
         }
 
-        // ¿äÃ» ¼ö¿Í ³²Àº ¼ö Áß ÀÛÀº °ª¸¸ ½ºÆù
-        int spawnCount = Mathf.Min(requestedCount, remaining);
-        int actuallySpawned = EnemyManager.Instance.SpawnEnemies(spawnCount);
+        int spawnCount = IsEndlessMode ? requestedCount : Mathf.Min(requestedCount, remaining);
+        int actuallySpawned = EnemyManager.Instance.SpawnEnemies(
+            spawnCount, CurrentEnemyHealthMultiplier, CurrentEnemyAttackMultiplier);
         spawnedEnemies += actuallySpawned;
-        Debug.Log($"Àû {actuallySpawned}¸¶¸® ½ºÆù, ÇöÀç±îÁö ÃÑ {spawnedEnemies}/{totalEnemiesThisStage}");
+        Debug.Log($"ì  {actuallySpawned}ë§ˆë¦¬ ìŠ¤í°, í˜„ì¬ê¹Œì§€ ì´ {spawnedEnemies}/{totalEnemiesThisStage}");
         return actuallySpawned;
     }
 
-    // Wall Hit
+    // ë°©ë²½ í”¼ê²© ì²˜ë¦¬
     public void OnWallHit(float Damage)
     {
-        WallHP -= Damage;
+        WallHP = Mathf.Max(0f, WallHP - Damage);
+        if (uiManager != null) uiManager.UpdateBarrierHealthUI(WallHP, 100f);
         Debug.Log($"Wall HP: {WallHP}");
         if (WallHP <= 0)
         {
-            Debug.Log("Wall ÆÄ±«! ½ºÅ×ÀÌÁö ½ÇÆĞ...");
+            Debug.Log("Wall íŒŒê´´! ìŠ¤í…Œì´ì§€ ì‹¤íŒ¨...");
             GameOver();
-            // ½ºÅ×ÀÌÁö ½ÇÆĞ Ã³¸® Ãß°¡ ¿¹Á¤
+            // ìŠ¤í…Œì´ì§€ ì‹¤íŒ¨ ì²˜ë¦¬ ì¶”ê°€ ì˜ˆì •
         }
     }
 
+    public void HealWall(float amount)
+    {
+        if (amount <= 0f || GameOvered || stageCompleted) return;
+        WallHP = Mathf.Min(100f, WallHP + amount);
+        if (uiManager != null) uiManager.UpdateBarrierHealthUI(WallHP, 100f);
+    }
+
+    public void HealWallFromMissingHealth(float ratio)
+    {
+        if (ratio <= 0f || GameOvered || stageCompleted) return;
+        // í¡í˜ˆì€ í˜„ì¬ ê³µê²©ë ¥ ëŒ€ì‹  ìƒì€ ë°°ë¦¬ì–´ ì²´ë ¥ì„ ê¸°ì¤€ìœ¼ë¡œ íšŒë³µí•œë‹¤.
+        HealWall(Mathf.Max(0f, 100f - WallHP) * ratio);
+    }
+
     // =========================
-    // Àû Ã³Ä¡
+    // ì  ì²˜ì¹˜
     // =========================
     public void OnEnemyDefeated()
     {
+        // ì¢…ë£Œ í›„ ë„ì°©í•œ ì¶©ëŒ ì½œë°±ì€ ê²°ê³¼ë¥¼ ë°”ê¾¸ê±°ë‚˜ ê°•í™” ì°½ì„ ë‹¤ì‹œ ì—´ë©´ ì•ˆ ëœë‹¤.
+        if (GameOvered || stageCompleted) return;
         enemiesDefeated++;
 
         int enemiesPerWave = Mathf.Max(1, Mathf.CeilToInt((float)totalEnemiesThisStage / maxWaves));
-        int newWave = Mathf.Min(maxWaves, enemiesDefeated / enemiesPerWave);
+        int newWave = IsEndlessMode
+            ? enemiesDefeated / enemiesPerWave
+            : Mathf.Min(maxWaves, enemiesDefeated / enemiesPerWave);
 
         if (newWave > lastWave)
         {
             lastWave = newWave;
-            OnWaveTriggered(newWave);
+            // ë¬´í•œëª¨ë“œì—ì„œëŠ” ì›¨ì´ë¸Œê°€ ê³„ì† ì§„í–‰ë˜ì§€ë§Œ ê°•í™” íšŸìˆ˜ëŠ” ì¼ë°˜ ìŠ¤í…Œì´ì§€ì™€ ê°™ê²Œ ì œí•œí•œë‹¤.
+            if (IsEndlessMode || newWave < maxWaves)
+            {
+                currentWave = newWave + 1;
+                OnWaveTriggered(currentWave);
+            }
         }
 
         WaveExperience = CalculateWaveProgress();
-        if (uiManager != null) uiManager.UpdateWaveProgressUI(WaveExperience, maxWaves);
+        if (uiManager != null) uiManager.UpdateWaveProgressUI(WaveExperience, maxWaves, IsEndlessMode);
 
-        if (spawnedEnemies >= totalEnemiesThisStage && enemiesDefeated >= totalEnemiesThisStage)
+        if (!IsEndlessMode && spawnedEnemies >= totalEnemiesThisStage && enemiesDefeated >= totalEnemiesThisStage)
             CompleteStage();
     }
 
     private void OnWaveTriggered(int wave)
     {
-        Debug.Log($"¿şÀÌºê {wave} ½ÃÀÛ!");
+        Debug.Log($"ì›¨ì´ë¸Œ {wave} ì‹œì‘!");
 
-        if (wave <= 0 || wave >= maxWaves) return;
+        if (wave <= 1 || wave > maxWaves) return;
         Time.timeScale = 0f;
         if (uiManager == null || !uiManager.UpdateUpgradeList())
-            Time.timeScale = 1f;
+            ResumeGameplay();
     }
 
-    // ¿şÀÌºê °æÇèÄ¡ °è»ê
+    // ì›¨ì´ë¸Œ ê²½í—˜ì¹˜ ê³„ì‚°
     public float CalculateWaveProgress()
     {
         int enemiesPerWave = Mathf.Max(1, Mathf.CeilToInt((float)totalEnemiesThisStage / maxWaves));
@@ -361,20 +460,22 @@ public class StageManager : MonoBehaviour
         return calculatedWave + waveRatio;
     }
 
-    // ÀÏ½ÃÁ¤Áö ¹× Àç½ÃÀÛ
+    // ì¼ì‹œì •ì§€ ë° ì¬ì‹œì‘
     public void Pause()
     {
         //Reward_Calculation();
-        if(GameOvered) return;
+        // ê°•í™” ë° ê²°ê³¼ í™”ë©´ì´ ë‹«í ë•Œê¹Œì§€ í•´ë‹¹ í™”ë©´ì´ ì¼ì‹œì •ì§€ ìƒíƒœë¥¼ ìœ ì§€í•œë‹¤.
+        if (GameOvered || stageCompleted || (UpgradePanel != null && UpgradePanel.activeSelf) ||
+            (uiManager != null && uiManager.UpgradePanel != null && uiManager.UpgradePanel.activeSelf)) return;
         if (Time.timeScale == 0f)
         {
-            Time.timeScale = 1f; // °ÔÀÓ Àç½ÃÀÛ
+            ResumeGameplay();
             if (PausePanel != null) PausePanel.SetActive(false);
         }
         else
         {
-            Time.timeScale = 0f; // °ÔÀÓ ÀÏ½ÃÁ¤Áö
-            if (PausePanel != null) PausePanel.SetActive(true);
+            Time.timeScale = 0f; // ê²Œì„ ì¼ì‹œì •ì§€
+            ShowPopup(PausePanel);
         }
         
     }
@@ -383,18 +484,19 @@ public class StageManager : MonoBehaviour
     {
         if (GameOvered || stageCompleted) return;
         GameOvered = true;
-        Time.timeScale = 0f; // °ÔÀÓ ÀÏ½ÃÁ¤Áö
-        // º¸»ó °è»ê
-        //Reward_Calculation();
-        if (RewardPanel != null) RewardPanel.SetActive(true);
-        //OnStageClear();
+        AudioManager.Instance?.PlaySfx(GameSfx.GameOver);
+        Time.timeScale = 0f; // ê²Œì„ ì¼ì‹œì •ì§€
+        // ì •ì§€ íŒì—…ì—ì„œ ì² ìˆ˜í•œ ê²½ìš°, ê²°ê³¼ íŒì—…ë§Œ ë‚¨ê¸°ê³  ê¸°ì¡´ íŒì—…ì„ ë‹«ëŠ”ë‹¤.
+        if (PausePanel != null) PausePanel.SetActive(false);
+        if (uiManager != null) uiManager.PrepareResultPanel(false);
+        ShowPopup(RewardPanel);
         CalculateScore();
     }
 
-    // º¸»ó °è»ê
+    // ë³´ìƒ ê³„ì‚°
     /*    private void Reward_Calculation()
         {
-            // °æÇèÄ¡ ¹× °ñµå º¸»ó °è»ê(ÀÓ½Ã, ÀÌÈÄ ¿şÀÌºê º° º¸»ó Å×ÀÌºí·Î ´ëÃ¼ ¿¹Á¤)
+            // ê²½í—˜ì¹˜ ë° ê³¨ë“œ ë³´ìƒ ê³„ì‚°(ì„ì‹œ, ì´í›„ ì›¨ì´ë¸Œ ë³„ ë³´ìƒ í…Œì´ë¸”ë¡œ ëŒ€ì²´ ì˜ˆì •)
             float ratio = (float)enemiesDefeated / totalEnemiesThisStage;
 
             experience = (int)(ratio * maxExperience);
@@ -415,12 +517,12 @@ public class StageManager : MonoBehaviour
                 donut,
                 chocolate
             };
-            // º¸»ó UI ¿¡ Àü´Ş
+            // ë³´ìƒ UI ì— ì „ë‹¬
             UIManager.UpdateRewardUI(rewards);
         }
     */
 
-    // Á¡¼ö °è»ê(ÇÁ·ÎÅäÅ¸ÀÔ¿ë)
+    // ì ìˆ˜ ê³„ì‚°(í”„ë¡œí† íƒ€ì…ìš©)
     public void CalculateScore()
     {
         int score = 100000;
@@ -428,52 +530,135 @@ public class StageManager : MonoBehaviour
         float enemyDefeatRatio = (float)enemiesDefeated / totalEnemiesThisStage;
         score = (int)(score * wallHealthRatio * enemyDefeatRatio);
 
-        if (uiManager != null) uiManager.UpdateScoreUI(score);
+        int completedWaves = Mathf.Max(0, currentWave - 1);
+        int highScore = score;
+        if (GameManager != null)
+        {
+            if (IsEndlessMode) GameManager.RegisterEndlessResult(score, completedWaves);
+            else highScore = GameManager.RegisterScore(score);
+        }
+        if (uiManager != null)
+            uiManager.UpdateScoreUI(score, highScore, IsEndlessMode, completedWaves);
+    }
+
+    private float GetWaveMultiplier(float multiplierPerWave)
+    {
+        return Mathf.Pow(Mathf.Max(1f, multiplierPerWave), Mathf.Max(0, currentWave - 1));
     }
     // =========================
-    // ½ºÅ×ÀÌÁö Á¾·á
+    // ìŠ¤í…Œì´ì§€ ì¢…ë£Œ
     // =========================
     public void OnStageClear()
     {
-        // The same return button is used by the clear and game-over panels.
-        // A failed run must never award clear rewards.
+        // í´ë¦¬ì–´ì™€ ê²Œì„ ì˜¤ë²„ í™”ë©´ì€ ë™ì¼í•œ ë³µê·€ ë²„íŠ¼ì„ ì‚¬ìš©í•œë‹¤.
         if (!stageCompleted && !GameOvered)
             CompleteStage();
+        Time.timeScale = 1f;
         SceneManager.LoadScene("Home");
     }
 
     private void CompleteStage()
     {
-        if (stageCompleted) return;
+        // ê°™ì€ ë¬¼ë¦¬ í”„ë ˆì„ì—ì„œë„ í´ë¦¬ì–´ì™€ ì‹¤íŒ¨ê°€ ë™ì‹œì— ì²˜ë¦¬ë˜ì§€ ì•Šë„ë¡ í•œë‹¤.
+        if (stageCompleted || GameOvered) return;
         stageCompleted = true;
+        AudioManager.Instance?.PlaySfx(GameSfx.StageClear);
+        GameManager?.RegisterStage01Clear();
+        PlayerPrefs.SetInt(FastForwardUnlockedKey, 1);
+        PlayerPrefs.Save();
+        RefreshFastForwardButton();
         Time.timeScale = 0f;
-        CalculateRewards();
-        if (RewardPanel != null) RewardPanel.SetActive(true);
+        if (uiManager != null) uiManager.PrepareResultPanel(true);
+        ShowPopup(RewardPanel);
         CalculateScore();
     }
 
-    private void CalculateRewards()
+    private static void ShowPopup(GameObject popup)
     {
-        if (rewardsGranted || GameManager.Instance == null) return;
-        rewardsGranted = true;
-        experience = maxExperience;
-        gold = maxgold;
-        gem = maxgem;
-        skillShard = maxskillShard;
-        equipmentShard = maxequipmentShard;
-        donut = maxdonut;
-        chocolate = maxchocolate;
-        GameManager.Instance.AddExperience(experience);
-        GameManager.Instance.AddGold(gold);
-        GameManager.Instance.AddGem(gem);
-        GameManager.Instance.AddSkillShard(skillShard);
-        GameManager.Instance.AddEquipmentShard(equipmentShard);
-        GameManager.Instance.AddDonut(donut);
-        GameManager.Instance.AddChocolate(chocolate);
-
-        Debug.Log("Stage clear!");
-        Debug.Log($"È¹µæ °æÇèÄ¡: {experience}, °ñµå: {gold}");
-        Debug.Log($"È¹µæ ½ºÅ³Á¶°¢: {skillShard}, ÀåºñÁ¶°¢: {equipmentShard}");
-        Debug.Log($"È¹µæ µµ³Ó: {donut}, ÃÊÄİ¸´: {chocolate}");
+        if (popup == null) return;
+        // ë”¤ ë°°ê²½ê³¼ íŒì—…ì„ HUD ìµœìƒë‹¨ì— í•¨ê»˜ ë°°ì¹˜í•œë‹¤.
+        PopupBackdropOverlay.Show(popup);
+        popup.SetActive(true);
     }
+
+    private void EnsurePopupBackdrops()
+    {
+        AddBackdrop(PausePanel);
+        AddBackdrop(RewardPanel);
+        AddBackdrop(UpgradePanel);
+    }
+
+    private static void AddBackdrop(GameObject popup)
+    {
+        if (popup != null && popup.GetComponent<PopupBackdropOverlay>() == null)
+            popup.AddComponent<PopupBackdropOverlay>();
+    }
+
+    private void ConfigureFastForwardButton()
+    {
+        if (fastButton == null) return;
+        fastButtonIcon = fastButton.transform.Find("FastIcon")?.GetComponent<Graphic>();
+        fastButtonPalette = fastButton.GetComponent<PaletteColorApplicator>();
+        fastButtonIconPalette = fastButtonIcon != null ? fastButtonIcon.GetComponent<PaletteColorApplicator>() : null;
+        fastButton.onClick.AddListener(CycleFastForwardSpeed);
+        PaletteSettings.Changed += RefreshFastForwardButton;
+        RefreshFastForwardButton();
+    }
+
+    private void OnDestroy() => PaletteSettings.Changed -= RefreshFastForwardButton;
+
+    private void RefreshFastForwardButton()
+    {
+        if (fastButton == null) return;
+        bool unlocked = !GameOvered && PlayerPrefs.GetInt(FastForwardUnlockedKey, 0) == 1;
+        fastButton.interactable = unlocked;
+
+        PaletteColor colorRole = GetFastForwardColorRole(unlocked);
+        ApplyFastForwardColor(fastButton.targetGraphic, fastButtonPalette, colorRole);
+        ApplyFastForwardColor(fastButtonIcon, fastButtonIconPalette, colorRole);
+    }
+
+    private void CycleFastForwardSpeed()
+    {
+        if (GameOvered || PlayerPrefs.GetInt(FastForwardUnlockedKey, 0) != 1) return;
+        fastForwardSpeedIndex = (fastForwardSpeedIndex + 1) % FastForwardSpeeds.Length;
+        Time.timeScale = FastForwardSpeeds[fastForwardSpeedIndex];
+        RefreshFastForwardButton();
+    }
+
+    private PaletteColor GetFastForwardColorRole(bool unlocked)
+    {
+        if (!unlocked) return PaletteColor.StageRedDark;
+
+        switch (fastForwardSpeedIndex)
+        {
+            case 1: return PaletteColor.StageRed;
+            case 2: return PaletteColor.StageRedBright;
+            default: return PaletteColor.StageRedDark;
+        }
+    }
+
+    private void ApplyFastForwardColor(Graphic graphic, PaletteColorApplicator paletteBinding, PaletteColor colorRole)
+    {
+        if (paletteBinding != null)
+        {
+            paletteBinding.ColorRole = colorRole;
+            return;
+        }
+        if (graphic == null) return;
+        graphic.color = colorPalette != null
+            ? colorPalette.Get(colorRole)
+            : colorRole == PaletteColor.StageRedBright ? new Color(1f, 0.416f, 0.341f)
+            : colorRole == PaletteColor.StageRed ? new Color(0.933f, 0.29f, 0.224f)
+            : new Color(0.663f, 0.184f, 0.22f);
+    }
+
+    public void ResumeGameplay()
+    {
+        if (GameOvered || stageCompleted) return;
+        Time.timeScale = PlayerPrefs.GetInt(FastForwardUnlockedKey, 0) == 1
+            ? FastForwardSpeeds[fastForwardSpeedIndex]
+            : 1f;
+    }
+
 }

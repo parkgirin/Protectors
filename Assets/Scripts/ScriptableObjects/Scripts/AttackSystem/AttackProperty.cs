@@ -11,10 +11,10 @@ public enum PropertyType
 [Serializable]
 public class AttackProperty
 {
-    public string key;           // ¿¹: damage, cooldown, pierceCount
+    public string key;           // ì˜ˆ: damage, cooldown, pierceCount
     public PropertyType type;
 
-    // ½ÇÁ¦ °ª (Å¸ÀÔº° ÇÏ³ª¸¸ »ç¿ë)
+    // ì‹¤ì œ ê°’ (íƒ€ìž…ë³„ í•˜ë‚˜ë§Œ ì‚¬ìš©)
     public int intValue;
     public float floatValue;
     public bool boolValue;

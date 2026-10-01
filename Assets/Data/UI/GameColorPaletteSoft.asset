@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d93a5a83cdb4a37b4b2d2a3478e8be1, type: 3}
+  m_Name: GameColorPaletteSoft
+  m_EditorClassIdentifier: 
+  softPalette: {fileID: 0}
+  storyEnemy: {r: 0.6, g: 0.29803923, b: 0.32, a: 1}
+  originalSpriteColor: {r: 1, g: 1, b: 1, a: 1}
+  stageRed: {r: 0.82, g: 0.49, b: 0.46, a: 1}
+  stageRedBright: {r: 0.93, g: 0.63, b: 0.59, a: 1}
+  stageRedDark: {r: 0.52, g: 0.29, b: 0.34, a: 1}
+  planetUnregistered: {r: 0.6961, g: 0.7451, b: 0.792, a: 1}
+  planetUnregisteredDark: {r: 0.305, g: 0.3568, b: 0.431, a: 1}
+  uiWhite: {r: 1, g: 1, b: 1, a: 1}
+  uiSubText: {r: 0.969, g: 0.8808, b: 0.8724, a: 1}
+  uiInactive: {r: 0.47843137, g: 0.58431375, b: 0.5764706, a: 1}
+  spaceBackground: {r: 0.09, g: 0.1117, b: 0.153, a: 1}
+  spaceBackgroundDeep: {r: 0.145, g: 0.0932, b: 0.1205, a: 1}
+  popupBackdrop: {r: 0, g: 0, b: 0, a: 0.78}
+  shieldBarrier: {r: 0.4965, g: 0.5896, b: 0.675, a: 1}
+  shieldBarrierHighlight: {r: 0.7873, g: 0.8671, b: 0.914, a: 1}
+  characterSpriteTint: {r: 0.6666667, g: 0.78431374, b: 0.78431374, a: 1}
+  donutMint: {r: 0.5679, g: 0.878, b: 0.7961, a: 1}
+  chocolateBrown: {r: 0.78, g: 0.514, b: 0.3985, a: 1}
+  solarGold: {r: 1, g: 0.8712, b: 0.5415, a: 1}
+  cosmicGem: {r: 0.6545, g: 0.5943, b: 0.91, a: 1}
+  planetShard: {r: 0.7053, g: 0.7137, b: 0.741, a: 1}

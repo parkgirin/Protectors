@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1040" viewBox="0 0 1600 1040">
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#101a34"/><stop offset="1" stop-color="#251735"/></linearGradient>
+    <linearGradient id="jupiter" x2="1" y2="1"><stop stop-color="#f4ac58"/><stop offset="1" stop-color="#e16845"/></linearGradient>
+    <linearGradient id="saturn" x2="1" y2="1"><stop stop-color="#9cc7f7"/><stop offset="1" stop-color="#9a76d5"/></linearGradient>
+    <linearGradient id="cta" x2="1" y2="1"><stop stop-color="#ff784d"/><stop offset="1" stop-color="#ffc15a"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#050817" flood-opacity=".35"/></filter>
+    <style>
+      text{font-family:SUITE,'Noto Sans KR',sans-serif;fill:#f7f7ff}
+      .title{font-size:38px;font-weight:800}.head{font-size:22px;font-weight:700}.body{font-size:18px}.small{font-size:15px;fill:#b8c2df}.caption{font-size:17px;fill:#566184}.onlight{fill:#343a55}.node-title{font-size:17px;font-weight:800}.node-sub{font-size:13px;fill:#cbd3e9}.link{stroke:#6277aa;stroke-width:4;fill:none}.locked{stroke:#607099;stroke-width:3;stroke-dasharray:7 8;fill:#182443}.guide{stroke:#8f9ac2;stroke-width:2;stroke-dasharray:8 8;fill:none}
+    </style>
+  </defs>
+
+  <rect width="1600" height="1040" fill="#eef1f8"/>
+  <text x="800" y="56" text-anchor="middle" class="head onlight">Home · 성장 화면 / 지원 동료 탭</text>
+
+  <!-- 성장 화면 -->
+  <g transform="translate(160 86)" filter="url(#shadow)">
+    <rect width="600" height="920" rx="40" fill="url(#bg)"/>
+    <g fill="#fff" opacity=".42"><circle cx="72" cy="166" r="2"/><circle cx="510" cy="188" r="3"/><circle cx="420" cy="108" r="2"/><circle cx="94" cy="600" r="3"/><circle cx="538" cy="510" r="2"/></g>
+
+    <!-- Header -->
+    <g transform="translate(28 25)">
+      <rect width="54" height="54" rx="18" fill="#24345d"/><path d="M33 16L19 27l14 11" fill="none" stroke="#f7f7ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="74" y="35" class="title">성장</text>
+      <g transform="translate(382 0)"><rect width="162" height="54" rx="18" fill="#202d52"/><circle cx="29" cy="27" r="12" fill="#ffd35c"/><text x="52" y="34" class="body">1,250</text><path d="M121 15l12 12-12 12-12-12z" fill="#69d9ff"/><text x="142" y="34" class="small">8</text></g>
+    </g>
+
+    <!-- Companion category and tabs -->
+    <text x="30" y="128" class="small">지원 동료 · 해금한 동료를 육성하고 스테이지에 장착합니다.</text>
+    <g transform="translate(28 151)">
+      <rect width="544" height="60" rx="20" fill="#111b35"/>
+      <rect width="266" height="52" x="4" y="4" rx="17" fill="url(#jupiter)"/>
+      <circle cx="35" cy="30" r="15" fill="#4e3041"/><path d="M23 31h24M28 24h14M29 38h12" stroke="#ffd091" stroke-width="3" stroke-linecap="round"/>
+      <text x="58" y="37" class="head" fill="#33202b">주피터</text>
+      <circle cx="307" cy="30" r="15" fill="#6f77ac"/><ellipse cx="307" cy="30" rx="20" ry="7" fill="none" stroke="#d6d9ff" stroke-width="3"/>
+      <text x="332" y="37" class="head">새턴</text>
+    </g>
+
+    <!-- Character card -->
+    <g transform="translate(28 228)">
+      <rect width="544" height="110" rx="24" fill="#1a294b" stroke="#667cb5" stroke-width="2"/>
+      <circle cx="59" cy="55" r="37" fill="url(#jupiter)"/><path d="M42 57h34M47 46h24M48 68h22" stroke="#ffe1ac" stroke-width="5" stroke-linecap="round"/>
+      <text x="118" y="42" class="head">주피터 · 중력 방벽 지원</text>
+      <text x="118" y="70" class="small">무거운 화력과 적 제어에 특화된 지원 동료</text>
+      <rect x="406" y="34" width="110" height="42" rx="14" fill="#31486f"/><text x="461" y="61" text-anchor="middle" class="body">미영입</text>
+    </g>
+
+    <!-- Tree canvas -->
+    <g transform="translate(28 361)">
+      <rect width="544" height="423" rx="26" fill="#0e1830" stroke="#384c78" stroke-width="2"/>
+      <text x="24" y="34" class="small">성장 그래프 · 영입 노드부터 순서대로 연결됩니다.</text>
+      <!-- links -->
+      <path d="M93 205H171V108H254M171 205V318H254M324 108H420M324 318H420" class="link"/>
+      <!-- entry node -->
+      <g transform="translate(34 155)">
+        <circle cx="58" cy="50" r="48" fill="url(#jupiter)" stroke="#ffe0ad" stroke-width="4"/>
+        <path d="M35 51h46M41 39h34M42 64h32" stroke="#fff0cf" stroke-width="6" stroke-linecap="round"/>
+        <text x="58" y="121" text-anchor="middle" class="node-title">영입</text>
+        <text x="58" y="141" text-anchor="middle" class="node-sub">STORY 2-4</text>
+      </g>
+      <!-- locked top -->
+      <g transform="translate(254 66)">
+        <circle cx="0" cy="42" r="39" class="locked"/><path d="M-11 40v13h22V40a11 11 0 0 0-22 0z" fill="none" stroke="#9da9cb" stroke-width="3"/>
+        <text x="0" y="103" text-anchor="middle" class="node-title">중력 방벽</text><text x="0" y="123" text-anchor="middle" class="node-sub">출현 능력</text>
+      </g>
+      <g transform="translate(420 66)">
+        <circle cx="0" cy="42" r="39" class="locked"/><path d="M-11 40v13h22V40a11 11 0 0 0-22 0z" fill="none" stroke="#9da9cb" stroke-width="3"/>
+        <text x="0" y="103" text-anchor="middle" class="node-title">중력 폭발</text><text x="0" y="123" text-anchor="middle" class="node-sub">전용 전투</text>
+      </g>
+      <!-- locked bottom -->
+      <g transform="translate(254 276)">
+        <circle cx="0" cy="42" r="39" class="locked"/><path d="M-11 40v13h22V40a11 11 0 0 0-22 0z" fill="none" stroke="#9da9cb" stroke-width="3"/>
+        <text x="0" y="103" text-anchor="middle" class="node-title">중력 포화</text><text x="0" y="123" text-anchor="middle" class="node-sub">화력 강화</text>
+      </g>
+      <g transform="translate(420 276)">
+        <circle cx="0" cy="42" r="39" class="locked"/><path d="M-11 40v13h22V40a11 11 0 0 0-22 0z" fill="none" stroke="#9da9cb" stroke-width="3"/>
+        <text x="0" y="103" text-anchor="middle" class="node-title">마르스 연계</text><text x="0" y="123" text-anchor="middle" class="node-sub">탄환 압축</text>
+      </g>
+    </g>
+
+    <!-- CTA / equip status -->
+    <g transform="translate(28 803)">
+      <rect width="544" height="64" rx="21" fill="#293b64"/>
+      <path d="M27 31l9 9 17-20" fill="none" stroke="#a9bff7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="62" y="39" class="body">영입 후 스테이지 출발 전 지원 슬롯에 장착</text>
+    </g>
+
+    <!-- Bottom navigation -->
+    <g transform="translate(0 884)">
+      <path d="M0 0h600v-3a39 39 0 0 1-39 39H39A39 39 0 0 1 0-3z" fill="#111b35"/>
+      <g transform="translate(72 18)"><path d="M-14 18L0 5l14 13v17H5V24h-10v11h-9z" fill="#8995ba"/><text y="63" text-anchor="middle" class="small">홈</text></g>
+      <g transform="translate(220 18)"><path d="M-16 32h32M-11 25h22M-6 18h12" stroke="#8995ba" stroke-width="5" stroke-linecap="round"/><text y="63" text-anchor="middle" class="small">스테이지</text></g>
+      <g transform="translate(380 18)"><circle cy="23" r="15" fill="none" stroke="#ffbd72" stroke-width="5"/><path d="M0 0v9M0 37v9M-23 23h9M14 23h9" stroke="#ffbd72" stroke-width="5"/><text y="63" text-anchor="middle" class="small" fill="#ffbd72">성장</text></g>
+      <g transform="translate(525 18)"><circle cy="17" r="10" fill="#8995ba"/><path d="M-16 41q16-21 32 0" fill="#8995ba"/><text y="63" text-anchor="middle" class="small">메뉴</text></g>
+    </g>
+  </g>
+
+  <!-- design callouts -->
+  <g>
+    <path d="M760 190h96v-48h80" class="guide"/><text x="870" y="145" class="caption">① 하단 ‘성장’에서 진입</text>
+    <path d="M760 275h96v10h80" class="guide"/><text x="870" y="290" class="caption">② 주피터 · 새턴을 같은 화면에서 전환</text>
+    <path d="M760 505h96v-42h80" class="guide"/><text x="870" y="458" class="caption">③ 영입이 모든 성장의 시작 노드</text>
+    <text x="870" y="490" class="caption">잠긴 노드에 스토리/재화 조건을 표기</text>
+    <path d="M760 720h96v44h80" class="guide"/><text x="870" y="758" class="caption">④ 출현 · 전용 전투 · 마르스 연계로 분기</text>
+    <text x="870" y="790" class="caption">노드가 플레이 방식을 바꾸도록 설계</text>
+    <g transform="translate(870 842)"><rect width="500" height="100" rx="22" fill="#fff" stroke="#d5dbea" stroke-width="2"/><text x="26" y="35" class="head onlight">새턴 탭의 동일한 구조</text><text x="26" y="67" class="caption">영입 → 바운스/기동 → 마르스 연계</text><text x="26" y="89" class="caption">색상·아이콘·노드 내용만 새턴 정체성으로 교체</text></g>
+  </g>
+</svg>

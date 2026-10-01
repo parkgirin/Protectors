@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -11,23 +9,26 @@ public class Enemy : MonoBehaviour
     public float speed = 1f;
     public bool attacking = false;
     public float attackDelay = 1f;
+
     private float baseSpeed;
     private bool isDying;
+    private float spawnHealthMultiplier = 1f;
+    private float attackDamage = 1f;
 
     private StageManager stageManager;
     public GameObject dieAnime;
 
     private void OnEnable()
     {
-        // °¡´ÉÇÑ ÇÑ ¹Ì¸® Ã£¾ÆµÒ (Inspector ´ë½Å ÄÚµå·Î ¿¬°á)
+        // ê°€ëŠ¥í•œ í•œ ë¯¸ë¦¬ ì°¾ì•„ë‘  (Inspector ëŒ€ì‹  ì½”ë“œë¡œ ì—°ê²°)
         stageManager = FindObjectOfType<StageManager>();
         if (stageManager == null)
-            Debug.LogWarning("StageManager¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù. ½ºÅ×ÀÌÁö °ü·Ã ±â´ÉÀÌ µ¿ÀÛÇÏÁö ¾ÊÀ» ¼ö ÀÖ½À´Ï´Ù.");
-        hp = HP_Set;
+            Debug.LogWarning("StageManagerë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ìŠ¤í…Œì´ì§€ ê´€ë ¨ ê¸°ëŠ¥ì´ ë™ì‘í•˜ì§€ ì•Šì„ ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
+        hp = Mathf.Max(1f, HP_Set * spawnHealthMultiplier);
         isDying = false;
-        if (TMPro_hp != null) TMPro_hp.text = hp.ToString();
+        if (TMPro_hp != null) TMPro_hp.text = hp.ToString("0.#");
 
-        // ÃÊ±â À§Ä¡ ¼³Á¤
+        // ì´ˆê¸° ìœ„ì¹˜ ì„¤ì •
         float x = Random.Range(-2.3f, 2.3f);
         this.transform.position = new Vector3(x, 4f, 0);
 
@@ -49,12 +50,12 @@ public class Enemy : MonoBehaviour
         }
         else
         {
-            // ½Ã°£ Áö¿¬ ÈÄ °ø°İ ½ÇÇà
+            // ì‹œê°„ ì§€ì—° í›„ ê³µê²© ì‹¤í–‰
             attackDelay -= Time.deltaTime;
             if (attackDelay <= 0f)
             {
                 Attack();
-                attackDelay = 1f; // °ø°İ ÈÄ µô·¹ÀÌ ÃÊ±âÈ­
+                attackDelay = 1f; // ê³µê²© í›„ ë”œë ˆì´ ì´ˆê¸°í™”
             }
         }
     }
@@ -63,6 +64,7 @@ public class Enemy : MonoBehaviour
     {
         if (isDying) return;
         isDying = true;
+        AudioManager.Instance?.PlaySfx(GameSfx.EnemyDefeated);
         if (StageManager.Instance != null)
             StageManager.Instance.OnEnemyDefeated();
 
@@ -72,12 +74,22 @@ public class Enemy : MonoBehaviour
             EnemyManager.Instance.OnEnemyDestroyed(gameObject);
         }
     }
-    public void DieAnime()
+    public void DieAnime(bool criticalHit = false)
     {
+        if (isDying) return;
         if (dieAnime != null)
         {
             GameObject anime = Instantiate(dieAnime);
             anime.transform.position = this.transform.position;
+            // Carry the selected enemy color into its animated defeat sprite.
+            PaletteColorApplicator sourceColor = GetComponentInChildren<PaletteColorApplicator>();
+            PaletteColorApplicator effectColor = anime.GetComponentInChildren<PaletteColorApplicator>();
+            if (sourceColor != null && effectColor != null)
+            {
+                effectColor.ColorRole = sourceColor.ColorRole;
+                effectColor.Palette = sourceColor.Palette;
+            }
+            if (criticalHit) CriticalImpactEffect.Play(anime);
         }
         else
         {
@@ -86,21 +98,35 @@ public class Enemy : MonoBehaviour
         Die();
     }
 
-    public void TakeDamage(float damage)
+    public float TakeDamage(float damage, bool criticalHit = false)
     {
-        hp -= damage;
-        if (TMPro_hp != null) TMPro_hp.text = hp.ToString();
+        // í’€ë§ëœ ì ì´ ì´ë¯¸ ì‚¬ë§í•œ ë’¤ ì—¬ëŸ¬ íƒ„í™˜ì˜ ì¶©ëŒì´ ë“¤ì–´ì™€ë„ í”¼í•´ë¥¼ ì¤‘ë³µ ì²˜ë¦¬í•˜ì§€ ì•ŠëŠ”ë‹¤.
+        if (isDying || !gameObject.activeInHierarchy || damage <= 0f) return 0f;
+        float appliedDamage = Mathf.Min(Mathf.Max(0f, hp), damage);
+        hp = Mathf.Max(0f, hp - damage);
+        if (TMPro_hp != null) TMPro_hp.text = hp.ToString("0.#");
 
         if (hp <= 0)
         {
-            DieAnime();
+            DieAnime(criticalHit);
         }
+        else if (criticalHit)
+        {
+            CriticalImpactEffect.Play(gameObject);
+        }
+        return appliedDamage;
     }
 
     public void Attack()
     {
         StageManager manager = StageManager.Instance != null ? StageManager.Instance : stageManager;
-        if (manager != null) manager.OnWallHit(1f);
+        if (manager != null) manager.OnWallHit(attackDamage);
+    }
+
+    public void ConfigureForWave(float healthMultiplier, float attackMultiplier)
+    {
+        spawnHealthMultiplier = Mathf.Max(1f, healthMultiplier);
+        attackDamage = Mathf.Max(1f, attackMultiplier);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

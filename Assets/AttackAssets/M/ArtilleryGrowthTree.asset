@@ -10,71 +10,524 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d0fa8ee04c91c9642910facc7e28699d, type: 3}
-  m_Name: 포격 성장 트리
+  m_Name: ArtilleryGrowthTree
   m_EditorClassIdentifier: 
   nodes:
-  - id: artillery_damage_1
-    displayName: 강화 포탄
-    description: 포격 공격력 +25%.
-    effect: 0
-    value: 1.25
+  - id: artillery_merge
+    displayName: "\uD3EC\uD0C4 \uD569\uCCB4"
+    description: "\uBC1C\uC0AC \uC218 1\uBC1C\uB85C \uACE0\uC815 \xB7 \uD0C4\uB2F9 \uD53C\uD574 80% \xB7 \uD3EC\uD0C4 \uD06C\uAE30\xB7\uAD00\uD1B5 \uC99D\uAC00"
+    modifiers: []
     minimumLevel: 0
-    minimumDamage: 0
-    minimumRange: 0
     minimumBulletCount: 0
     minimumPierce: 0
-    requiredBranch: 0
-    resultBranch: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 
+    grantedBehaviors: 01000000
+    lockedNodeIds: []
     exclusiveGroup: 
-  - id: artillery_salvo_1
-    displayName: 이중 탄막
-    description: 탄막 수 +1. 추가 탄막은 고정 각도로 발사됩니다.
-    effect: 3
-    value: 1
-    minimumLevel: 1
-    minimumDamage: 0
-    minimumRange: 0
+  - id: artillery_fragment
+    displayName: "\uD30C\uD3B8 \uC0DD\uC131"
+    description: "마지막 적중: 70% 확률로 주 포탄 피해 12%의 파편 3발 생성"
+    modifiers: []
+    minimumLevel: 0
     minimumBulletCount: 0
     minimumPierce: 0
-    requiredBranch: 0
-    resultBranch: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 
+    grantedBehaviors: 02000000
+    lockedNodeIds: []
     exclusiveGroup: 
-  - id: artillery_salvo_2
-    displayName: 삼중 탄막
-    description: 탄막 수 +1. 추가 탄막은 고정 각도로 발사됩니다.
-    effect: 3
-    value: 1
-    minimumLevel: 3
-    minimumDamage: 0
-    minimumRange: 0
-    minimumBulletCount: 2
+  - id: artillery_homing_fragment
+    displayName: "\uC720\uB3C4 \uD30C\uD3B8"
+    description: "\uD30C\uD3B8: \uAC00\uC7A5 \uAC00\uAE4C\uC6B4 \uC801 \uC870\uC900"
+    modifiers: []
+    minimumLevel: 0
+    minimumBulletCount: 0
     minimumPierce: 0
-    requiredBranch: 0
-    resultBranch: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 02000000
+    grantedBehaviors: 05000000
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_fragment_chance
+    displayName: "\uD30C\uD3B8 \uBC1C\uC0DD \uD655\uB960 \uAC15\uD654"
+    description: "파편 발생 확률 +15%p"
+    modifiers:
+    - effect: 17
+      value: 0.15
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 2
+    requirements: []
+    requiredBehaviors: 02000000
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_damage
+    displayName: "\uD654\uB825 \uAC15\uD654"
+    description: "공격력 +30%"
+    modifiers:
+    - effect: 0
+      value: 1.3
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_bullet_count
+    displayName: "\uD3EC\uD0C4 \uC218 \uAC15\uD654"
+    description: "발사 수 +1 · 공격력 -18%"
+    modifiers:
+    - effect: 3
+      value: 1
+    - effect: 0
+      value: 0.82
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 2
+    requirements: []
+    requiredBehaviors: 
+    grantedBehaviors: 
+    lockedNodeIds: []
     exclusiveGroup: 
   - id: artillery_pierce
-    displayName: 철갑 포탄
-    description: 관통 수 +1.
-    effect: 4
-    value: 1
-    minimumLevel: 3
-    minimumDamage: 0
-    minimumRange: 0
-    minimumBulletCount: 2
+    displayName: "\uAD00\uD1B5 \uAC15\uD654"
+    description: "관통 +1 · 공격력 -10%"
+    modifiers:
+    - effect: 4
+      value: 1
+    - effect: 0
+      value: 0.9
+    minimumLevel: 0
+    minimumBulletCount: 0
     minimumPierce: 0
-    requiredBranch: 0
-    resultBranch: 0
-    exclusiveGroup: artillery_special
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_bullet_speed
+    displayName: "\uD0C4\uC18D \uAC15\uD654"
+    description: "탄속 +25% · 치명타 확률 증가"
+    modifiers:
+    - effect: 5
+      value: 1.25
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 2
+    requirements: []
+    requiredBehaviors: 
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
   - id: artillery_rapid
-    displayName: 속사 포격
-    description: 공격 속도 +35%, 공격력 -20%.
-    effect: 6
-    value: 0
-    minimumLevel: 3
-    minimumDamage: 0
-    minimumRange: 0
-    minimumBulletCount: 2
+    displayName: "\uC5F0\uC0AC \uAC15\uD654"
+    description: "공격 간격 -40% · 공격력 -15%"
+    modifiers:
+    - effect: 1
+      value: 0.6
+    - effect: 0
+      value: 0.85
+    minimumLevel: 0
+    minimumBulletCount: 0
     minimumPierce: 0
-    requiredBranch: 0
-    resultBranch: 1
-    exclusiveGroup: artillery_special
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_lifesteal
+    displayName: "\uD761\uD608"
+    description: "적 처치: 잃은 배리어 체력 3% 회복"
+    modifiers:
+    - effect: 14
+      value: 0.03
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_lifesteal_power
+    displayName: "\uD761\uD608 \uAC15\uD654"
+    description: "적 처치 시 잃은 배리어 체력 회복 +1.5%p"
+    modifiers:
+    - effect: 14
+      value: 0.015
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 2
+    requirements:
+    - nodeId: artillery_lifesteal
+      selectionCount: 1
+    requiredBehaviors: 
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_critical_chance
+    displayName: "\uCE58\uBA85\uD0C0 \uD655\uB960 \uAC15\uD654"
+    description: "\uCE58\uBA85\uD0C0 \uD655\uB960 +15%p"
+    modifiers:
+    - effect: 15
+      value: 0.15
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 2
+    requirements: []
+    requiredBehaviors: 
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_critical_damage
+    displayName: "\uCE58\uBA85\uD0C0 \uD53C\uD574 \uAC15\uD654"
+    description: "\uCE58\uBA85\uD0C0 \uD53C\uD574 +75%p"
+    modifiers:
+    - effect: 16
+      value: 0.75
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 2
+    requirements:
+    - nodeId: artillery_critical_chance
+      selectionCount: 1
+    requiredBehaviors: 
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_speed_critical
+    displayName: "\uACE0\uC18D \uCE58\uBA85\uD0C0"
+    description: "\uD0C4\uC18D +20% \xB7 \uCE58\uBA85\uD0C0 \uD655\uB960 +5%p \xB7 \uACE0\uC18D \uCE58\uBA85\uD0C0 \uD53C\uD574 \uC99D\uAC00"
+    modifiers:
+    - effect: 5
+      value: 1.2
+    - effect: 15
+      value: 0.05
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements:
+    - nodeId: artillery_bullet_speed
+      selectionCount: 1
+    - nodeId: artillery_critical_chance
+      selectionCount: 1
+    requiredBehaviors: 
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_merge_damage
+    displayName: "\uD569\uCCB4 \uD53C\uD574 \uAC15\uD654"
+    description: "합체 피해 +25% · 탄속 -10%"
+    modifiers:
+    - effect: 8
+      value: 0.25
+    - effect: 5
+      value: 0.9
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 01000000
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_merge_pierce
+    displayName: "\uD569\uCCB4 \uAD00\uD1B5 \uAC15\uD654"
+    description: "관통 +2 · 공격 간격 +10%"
+    modifiers:
+    - effect: 4
+      value: 2
+    - effect: 1
+      value: 1.1
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 2
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 01000000
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_merge_size
+    displayName: "\uD569\uCCB4 \uD06C\uAE30 \uAC15\uD654"
+    description: "포탄 크기 +50% · 탄속 -10%"
+    modifiers:
+    - effect: 7
+      value: 1.5
+    - effect: 5
+      value: 0.9
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 01000000
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_fragment_count
+    displayName: "\uD30C\uD3B8 \uC218 \uAC15\uD654"
+    description: "파편 수 +2 · 파편 피해 -1%p"
+    modifiers:
+    - effect: 9
+      value: 2
+    - effect: 10
+      value: -0.01
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 02000000
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_fragment_variance
+    displayName: "\uD30C\uD3B8 \uC218 \uBB34\uC791\uC704\uD654"
+    description: "파편 생성 수: 현재 값의 -50%~+50% 범위에서 무작위 결정"
+    modifiers:
+    - effect: 18
+      value: 1
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 02000000
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_fragment_pierce
+    displayName: "\uD30C\uD3B8 \uAD00\uD1B5 \uAC15\uD654"
+    description: "파편 관통 +1 · 파편 피해 -1%p"
+    modifiers:
+    - effect: 11
+      value: 1
+    - effect: 10
+      value: -0.01
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 2
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 02000000
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_large
+    displayName: "\uB300\uD615 \uD3EC\uD0C4"
+    description: "포탄 크기 +75% · 공격력 +10% · 탄속 -10% · 공격 간격 +5%"
+    modifiers:
+    - effect: 7
+      value: 1.75
+    - effect: 5
+      value: 0.9
+    - effect: 1
+      value: 1.05
+    - effect: 0
+      value: 1.1
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 
+    grantedBehaviors: 03000000
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_large_speed
+    displayName: "\uB300\uD615 \uD3EC\uD0C4 \uD0C4\uC18D \uAC15\uD654"
+    description: "탄속 +20% · 치명타 확률 증가"
+    modifiers:
+    - effect: 5
+      value: 1.2
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements:
+    - nodeId: artillery_bullet_speed
+      selectionCount: 1
+    requiredBehaviors: 03000000
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_large_pierce
+    displayName: "\uB300\uD615 \uD3EC\uD0C4 \uAD00\uD1B5 \uAC15\uD654"
+    description: "관통 +1 · 공격 간격 +5%"
+    modifiers:
+    - effect: 4
+      value: 1
+    - effect: 1
+      value: 1.05
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 03000000
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_explosion
+    displayName: "\uD3ED\uBC1C"
+    description: "첫 적중: 주 포탄 피해 65%의 폭발 발생 · 관통 -1 · 포탄 크기에 따라 폭발 반경 증가"
+    modifiers: []
+    minimumLevel: 6
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 
+    grantedBehaviors: 04000000
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_fragment_explosion
+    displayName: "\uD30C\uD3B8 \uD3ED\uBC1C"
+    description: "\uD30C\uD3B8 \uCCAB \uC801\uC911: \uD3ED\uBC1C \uD655\uB960 +50%p \xB7 \uD3ED\uBC1C \uD53C\uD574 65%"
+    modifiers:
+    - effect: 19
+      value: 0.5
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 0400000002000000
+    grantedBehaviors: 06000000
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_explosion_power
+    displayName: "\uD3ED\uBC1C \uBC94\uC704\xB7\uD53C\uD574 \uAC15\uD654"
+    description: "폭발 반경 +50% · 폭발 피해 +30%p · 공격 간격 +10%"
+    modifiers:
+    - effect: 13
+      value: 1.5
+    - effect: 12
+      value: 0.3
+    - effect: 1
+      value: 1.1
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 0400000001000000
+    grantedBehaviors: 
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_fire
+    displayName: "\uD3ED\uBC1C \uD6C4 \uD654\uC5FC \uC0DD\uC131"
+    description: "폭발 지점: 3초간 초당 주 포탄 피해 20%의 화염 생성"
+    modifiers: []
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 0400000003000000
+    grantedBehaviors: 07000000
+    lockedNodeIds: []
+    exclusiveGroup: 
+  - id: artillery_final_giant
+    displayName: "\uCD08\uB300\uD615 \uD569\uCCB4\uD0C4"
+    description: "합체 피해 +40% · 크기 +75% · 관통 +2"
+    modifiers:
+    - effect: 8
+      value: 0.4
+    - effect: 7
+      value: 1.75
+    - effect: 4
+      value: 2
+    minimumLevel: 0
+    minimumBulletCount: 3
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 0100000003000000
+    grantedBehaviors: 08000000
+    lockedNodeIds:
+    - artillery_bullet_count
+    exclusiveGroup: artillery_final
+  - id: artillery_final_fragments
+    displayName: "\uD569\uCCB4 \uD30C\uD3B8\uD0C4"
+    description: "파편 수 +4 · 파편 피해 +2%p · 주 포탄 관통 -1"
+    modifiers:
+    - effect: 9
+      value: 4
+    - effect: 10
+      value: 0.02
+    minimumLevel: 0
+    minimumBulletCount: 3
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 0100000002000000
+    grantedBehaviors: 09000000
+    lockedNodeIds:
+    - artillery_bullet_count
+    exclusiveGroup: artillery_final
+  - id: artillery_final_chain
+    displayName: "\uD3EC\uD0C4\xB7\uD30C\uD3B8 \uD3ED\uBC1C"
+    description: "주 포탄·파편 폭발 활성화 · 파편 폭발 확률 +50%p · 폭발 처치: 파편 1~3발 생성 · 파편 수 +2 · 폭발 피해 +25%p · 공격 간격 +10%"
+    modifiers:
+    - effect: 9
+      value: 2
+    - effect: 12
+      value: 0.25
+    - effect: 1
+      value: 1.1
+    - effect: 19
+      value: 0.5
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 2
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: 0200000004000000
+    grantedBehaviors: 0a000000
+    lockedNodeIds:
+    - artillery_bullet_count
+    - artillery_fragment_explosion
+    exclusiveGroup: artillery_final
+  - id: artillery_final_siege
+    displayName: "\uD569\uCCB4 \uD3ED\uBC1C\uD0C4"
+    description: "폭발 반경 +120% · 폭발 피해 +65%p · 공격 간격 +25%"
+    modifiers:
+    - effect: 13
+      value: 2.2
+    - effect: 12
+      value: 0.65
+    - effect: 1
+      value: 1.25
+    minimumLevel: 0
+    minimumBulletCount: 0
+    minimumPierce: 0
+    maxSelectionCount: 1
+    requirements:
+    - nodeId: artillery_damage
+      selectionCount: 1
+    requiredBehaviors: 0100000004000000
+    grantedBehaviors: 0b000000
+    lockedNodeIds:
+    - artillery_bullet_count
+    exclusiveGroup: artillery_final

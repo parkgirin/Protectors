@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: -8601136854069639526}
   - component: {fileID: 3627434778762663610}
   - component: {fileID: 1994419396216392533}
+  - component: {fileID: -8590039821209865889}
   m_Layer: 0
   m_Name: Bullet
   m_TagString: bullet
@@ -78,7 +79,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: b39e577e87775de4d9692386ec14ab4c, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.933, g: 0.29, b: 0.224, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -174,3 +175,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6966ef7a301b2a54696c05a11296e993, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-8590039821209865889
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3984625059954842355}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fbe20165fa44f819b0dd4a95f8b2199, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  palette: {fileID: 11400000, guid: 3ffd00ab09234ea1a8c271df3e5d1e2b, type: 2}
+  colorRole: 0
+  applyOnEnable: 1

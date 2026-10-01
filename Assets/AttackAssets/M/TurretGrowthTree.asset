@@ -10,45 +10,45 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d0fa8ee04c91c9642910facc7e28699d, type: 3}
-  m_Name: 터렛 성장 트리
-  m_EditorClassIdentifier: 
+  m_Name: TurretGrowthTree
+  m_EditorClassIdentifier:
   nodes:
   - id: turret_power
-    displayName: 중포신
-    description: 터렛 공격력 +30%.
-    effect: 0
-    value: 1.3
+    displayName: "\uD130\uB81B \uD654\uB825 \uAC15\uD654"
+    description: "\uACF5\uACA9\uB825 +30%"
+    modifiers:
+    - effect: 0
+      value: 1.3
     minimumLevel: 0
-    minimumDamage: 0
-    minimumRange: 0
-    minimumBulletCount: 0
-    minimumPierce: 0
-    requiredBranch: 0
-    resultBranch: 0
-    exclusiveGroup: 
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: []
+    grantedBehaviors: []
+    lockedNodeIds: []
+    exclusiveGroup:
   - id: turret_rate
-    displayName: 고속 장전기
-    description: 터렛 공격 속도 +15%.
-    effect: 1
-    value: 0.85
+    displayName: "\uD130\uB81B \uC5F0\uC0AC \uAC15\uD654"
+    description: "\uACF5\uACA9 \uAC04\uACA9 -15%"
+    modifiers:
+    - effect: 1
+      value: 0.85
     minimumLevel: 1
-    minimumDamage: 0
-    minimumRange: 0
-    minimumBulletCount: 0
-    minimumPierce: 0
-    requiredBranch: 0
-    resultBranch: 0
-    exclusiveGroup: 
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: []
+    grantedBehaviors: []
+    lockedNodeIds: []
+    exclusiveGroup:
   - id: turret_range
-    displayName: 조준 렌즈
-    description: 터렛 사거리 +25%.
-    effect: 2
-    value: 1.25
+    displayName: "\uD130\uB81B \uC0AC\uAC70\uB9AC \uAC15\uD654"
+    description: "\uC0AC\uAC70\uB9AC +25%"
+    modifiers:
+    - effect: 2
+      value: 1.25
     minimumLevel: 2
-    minimumDamage: 0
-    minimumRange: 0
-    minimumBulletCount: 0
-    minimumPierce: 0
-    requiredBranch: 0
-    resultBranch: 0
-    exclusiveGroup: 
+    maxSelectionCount: 1
+    requirements: []
+    requiredBehaviors: []
+    grantedBehaviors: []
+    lockedNodeIds: []
+    exclusiveGroup:

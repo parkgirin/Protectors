@@ -13,7 +13,7 @@ public class Back_Box : MonoBehaviour
         Enemy enemy = collision.GetComponent<Enemy>();
         if (enemy != null)
         {
-            // Do not silently remove enemies: the stage needs the kill event.
+            // 적을 조용히 제거하면 처치 수가 누락되므로 반드시 사망 처리를 거친다.
             enemy.Die();
             return;
         }

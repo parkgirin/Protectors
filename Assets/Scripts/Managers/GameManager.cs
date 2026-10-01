@@ -5,37 +5,61 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    // ½Ì±ÛÅæ ÀÎ½ºÅÏ½º
+    public enum PlayMode
+    {
+        Stage,
+        EndlessLab
+    }
+
+    private const string HighScoreKey = "HighScore";
+    private const string LastScoreKey = "LastScore";
+    private const string EndlessHighScoreKey = "EndlessHighScore";
+    private const string EndlessBestWaveKey = "EndlessBestWave";
+    private const string Stage01ClearedKey = "Stage01Cleared";
+    // ì‹±ê¸€í†¤ ì¸ìŠ¤í„´ìŠ¤
     public static GameManager Instance { get; private set; }
     //public BaseAttackSO attackSO;
 
 
-    [Header("»ç¿ë °¡´ÉÇÑ Ä³¸¯ÅÍ/½ºÅ³")]
+    [Header("ì‚¬ìš© ê°€ëŠ¥í•œ ìºë¦­í„°/ìŠ¤í‚¬")]
     public Dictionary<string, bool> skillUnlocked = new Dictionary<string, bool>();
     public Dictionary<string, bool> specialCharacterUnlocked = new Dictionary<string, bool>();
 
-    [Header("Àåºñ/°ø°İ È¿°ú")]
+    [Header("ì¥ë¹„/ê³µê²© íš¨ê³¼")]
     public List<string> equipmentEffects = new List<string>();
     public List<string> attackEffects = new List<string>();
 
     // =========================
-    // È¨¿¡¼­ »ç¿ëÇÏ´Â °æÇèÄ¡/ÀçÈ­
+    // í™ˆì—ì„œ ì‚¬ìš©í•˜ëŠ” ê²½í—˜ì¹˜/ì¬í™”
     // =========================
-    [Header("°æÇèÄ¡/ÀçÈ­")]
+    [Header("ê²½í—˜ì¹˜/ì¬í™”")]
     public int experience = 0;
-    public int gold = 0;
-    public int donut = 0;
-    public int gem = 0;
-    public int chocolate = 0;
-    public int skillShard = 0;
-    public int equipmentShard = 0;
+    [SerializeField] private CurrencyAsset goldCurrency;
+    [SerializeField] private CurrencyAsset donutCurrency;
+    [SerializeField] private CurrencyAsset gemCurrency;
+    [SerializeField] private CurrencyAsset chocolateCurrency;
+    [SerializeField] private CurrencyAsset skillShardCurrency;
+    [SerializeField] private CurrencyAsset equipmentShardCurrency;
 
-    // ÇÃ·¹ÀÌ¾î ·¹º§
+    public int gold { get => GetAmount(goldCurrency); set => SetAmount(goldCurrency, value); }
+    public int donut { get => GetAmount(donutCurrency); set => SetAmount(donutCurrency, value); }
+    public int gem { get => GetAmount(gemCurrency); set => SetAmount(gemCurrency, value); }
+    public int chocolate { get => GetAmount(chocolateCurrency); set => SetAmount(chocolateCurrency, value); }
+    public int skillShard { get => GetAmount(skillShardCurrency); set => SetAmount(skillShardCurrency, value); }
+    public int equipmentShard { get => GetAmount(equipmentShardCurrency); set => SetAmount(equipmentShardCurrency, value); }
+
+    // í”Œë ˆì´ì–´ ë ˆë²¨
     public int playerLevel = 1;
+    public int highScore { get; private set; }
+    public int lastScore { get; private set; }
+    public int endlessHighScore { get; private set; }
+    public int endlessBestWave { get; private set; }
+    public bool HasClearedStage01 => PlayerPrefs.GetInt(Stage01ClearedKey, 0) == 1;
+    public PlayMode CurrentPlayMode { get; private set; } = PlayMode.Stage;
 
-    // ½ºÅ³ ·¹º§
+    // ìŠ¤í‚¬ ë ˆë²¨
     public Dictionary<string, int> skillLevels = new Dictionary<string, int>();
-    // ½ºÅ³ ¸ñ·Ï
+    // ìŠ¤í‚¬ ëª©ë¡
     public List<string> skillList = new List<string> { "Drone", "Sphere", "Turret" };
 
     private void Awake()
@@ -43,31 +67,48 @@ public class GameManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
         DontDestroyOnLoad(gameObject);
+        highScore = PlayerPrefs.GetInt(HighScoreKey, 0);
+        lastScore = PlayerPrefs.GetInt(LastScoreKey, 0);
+        endlessHighScore = PlayerPrefs.GetInt(EndlessHighScoreKey, 0);
+        endlessBestWave = PlayerPrefs.GetInt(EndlessBestWaveKey, 0);
+
+        // Scores were only recorded on a successful stage clear in earlier builds.
+        // Preserve that progress when migrating to the explicit Stage 01 clear flag.
+        if (highScore > 0 && !HasClearedStage01)
+        {
+            PlayerPrefs.SetInt(Stage01ClearedKey, 1);
+            PlayerPrefs.Save();
+        }
     }
 
     // =========================
-    // ½ºÅ×ÀÌÁö ½ÃÀÛ Àü ÃÊ±âÈ­
+    // ìŠ¤í…Œì´ì§€ ì‹œì‘ ì „ ì´ˆê¸°í™”
     // =========================
     public void InitializeStage()
     {
-        Debug.Log("½ºÅ×ÀÌÁö ½ÃÀÛ: È¨¿¡¼­ ¼¼ÆÃµÈ °ª Àû¿ë");
+        Debug.Log("ìŠ¤í…Œì´ì§€ ì‹œì‘: í™ˆì—ì„œ ì„¸íŒ…ëœ ê°’ ì ìš©");
 
-        // È¨¿¡¼­ ¼¼ÆÃÇÑ °ø°İ·Â/¹üÀ§
-        //Debug.Log($"±âº» °ø°İ·Â: {baseAttack}, °ø°İ ¹üÀ§: {baseAttackRange}");
+        // í™ˆì—ì„œ ì„¸íŒ…í•œ ê³µê²©ë ¥/ë²”ìœ„
+        //Debug.Log($"ê¸°ë³¸ ê³µê²©ë ¥: {baseAttack}, ê³µê²© ë²”ìœ„: {baseAttackRange}");
 
-        // »ç¿ë °¡´ÉÇÑ ½ºÅ³/Ä³¸¯ÅÍ È®ÀÎ
+        // ì‚¬ìš© ê°€ëŠ¥í•œ ìŠ¤í‚¬/ìºë¦­í„° í™•ì¸
         foreach (var skill in skillUnlocked)
-            Debug.Log($"½ºÅ³: {skill.Key}, ÇØ±İ ¿©ºÎ: {skill.Value}");
+            Debug.Log($"ìŠ¤í‚¬: {skill.Key}, í•´ê¸ˆ ì—¬ë¶€: {skill.Value}");
         foreach (var character in specialCharacterUnlocked)
-            Debug.Log($"Ä³¸¯ÅÍ: {character.Key}, ÇØ±İ ¿©ºÎ: {character.Value}");
+            Debug.Log($"ìºë¦­í„°: {character.Key}, í•´ê¸ˆ ì—¬ë¶€: {character.Value}");
 
-        // Àåºñ/°ø°İ È¿°ú È®ÀÎ
-        Debug.Log("Àåºñ È¿°ú: " + string.Join(", ", equipmentEffects));
-        Debug.Log("°ø°İ È¿°ú: " + string.Join(", ", attackEffects));
+        // ì¥ë¹„/ê³µê²© íš¨ê³¼ í™•ì¸
+        Debug.Log("ì¥ë¹„ íš¨ê³¼: " + string.Join(", ", equipmentEffects));
+        Debug.Log("ê³µê²© íš¨ê³¼: " + string.Join(", ", attackEffects));
+    }
+
+    public void SetPlayMode(PlayMode playMode)
+    {
+        CurrentPlayMode = playMode;
     }
 
     // =========================
-    // ½ºÅ×ÀÌÁö ¿Ï·á ÈÄ º¸»ó Áõ°¡
+    // ìŠ¤í…Œì´ì§€ ì™„ë£Œ í›„ ë³´ìƒ ì¦ê°€
     // =========================
     public void AddExperience(int amount) => experience += amount;
     public void AddGold(int amount) => gold += amount;
@@ -77,8 +118,53 @@ public class GameManager : MonoBehaviour
     public void AddSkillShard(int amount) => skillShard += amount;
     public void AddEquipmentShard(int amount) => equipmentShard += amount;
 
+    private static int GetAmount(CurrencyAsset currency) => currency != null ? currency.Amount : 0;
+
+    private static void SetAmount(CurrencyAsset currency, int amount)
+    {
+        if (currency != null) currency.Amount = amount;
+    }
+
+    public int RegisterScore(int score)
+    {
+        lastScore = Mathf.Max(0, score);
+        PlayerPrefs.SetInt(LastScoreKey, lastScore);
+
+        if (lastScore > highScore)
+        {
+            highScore = lastScore;
+            PlayerPrefs.SetInt(HighScoreKey, highScore);
+        }
+
+        PlayerPrefs.Save();
+        return highScore;
+    }
+
+    public void RegisterStage01Clear()
+    {
+        PlayerPrefs.SetInt(Stage01ClearedKey, 1);
+        PlayerPrefs.Save();
+    }
+
+    public void RegisterEndlessResult(int score, int completedWaves)
+    {
+        if (score > endlessHighScore)
+        {
+            endlessHighScore = score;
+            PlayerPrefs.SetInt(EndlessHighScoreKey, endlessHighScore);
+        }
+
+        if (completedWaves > endlessBestWave)
+        {
+            endlessBestWave = completedWaves;
+            PlayerPrefs.SetInt(EndlessBestWaveKey, endlessBestWave);
+        }
+
+        PlayerPrefs.Save();
+    }
+
     // =========================
-    // È¨¿¡¼­ ½ºÅ³/Ä³¸¯ÅÍ ÇØ±İ
+    // í™ˆì—ì„œ ìŠ¤í‚¬/ìºë¦­í„° í•´ê¸ˆ
     // =========================
     public void UnlockSkill(string skillName)
     {
@@ -94,9 +180,11 @@ public class GameManager : MonoBehaviour
             specialCharacterUnlocked.Add(characterName, true);
         else
             specialCharacterUnlocked[characterName] = true;
+
+        AudioManager.Instance?.SetCharacterLayer(characterName, true);
     }
 
-    // È¨¿¡¼­ Àåºñ/°ø°İ È¿°ú Àû¿ë
+    // í™ˆì—ì„œ ì¥ë¹„/ê³µê²© íš¨ê³¼ ì ìš©
     public void AddEquipmentEffect(string effect)
     {
         if (!equipmentEffects.Contains(effect))

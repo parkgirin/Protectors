@@ -20,7 +20,7 @@ public class UpgradeUI : MonoBehaviour
 
         if (nameTr == null || descTr == null)
         {
-            Debug.LogError("UpgradeUI ÇÏÀ§ UI ±¸Á¶°¡ Àß¸øµÇ¾ú½À´Ï´Ù.");
+            Debug.LogError("UpgradeUI í•˜ìœ„ UI êµ¬ì¡°ê°€ ì˜ëª»ë˜ì—ˆìŠµë‹ˆë‹¤.");
             return;
         }
 

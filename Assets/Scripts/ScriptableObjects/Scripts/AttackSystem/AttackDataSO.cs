@@ -6,44 +6,44 @@ using UnityEngine;
     menuName = "Game/Attack Data")]
 public class AttackDataSO : ScriptableObject
 {
-    [Header("½Äº°")]
+    [Header("ì‹ë³„")]
     public string id;
     public string attackName;
 
-    [Header("Ç¥½Ã")]
+    [Header("í‘œì‹œ")]
     public Sprite icon;
     public Sprite attackSprite;
     [Min(0.01f)] public float attackSpriteScale = 1f;
     [TextArea]
     public string description;
 
-    [Header("±âº» ´É·ÂÄ¡")]
+    [Header("ê¸°ë³¸ ëŠ¥ë ¥ì¹˜")]
     public float damage = 1f;
     public float attackInterval = 0.3f;
     public float range = 0.8f;
 
-    [Header("ºĞ¸® ¿¹Á¤")]
+    [Header("ë¶„ë¦¬ ì˜ˆì •")]
     public int bulletCount = 1;
     public float bulletSpreadAngle = 0f;
     public int bulletHP = 1;
     public float bulletSpeed = 10f;
 
-    [Header("ºĞ·ù")]
+    [Header("ë¶„ë¥˜")]
     public AttackType attackType;
     public List<AttackTag> tags = new();
 
-    [Header("¼ºÀå")]
+    [Header("ì„±ì¥")]
     public List<GrowthNode> growthNodes = new();
     public AttackGrowthTreeSO growthTree;
 }
 
 public enum AttackType
 {
-    Projectile,    // Åõ»çÃ¼
-    Area,          // ¹üÀ§
-    Summon,        // ¼ÒÈ¯
-    Beam,          // ·¹ÀÌÀú
-    Passive        // ÆĞ½Ãºê
+    Projectile,    // íˆ¬ì‚¬ì²´
+    Area,          // ë²”ìœ„
+    Summon,        // ì†Œí™˜
+    Beam,          // ë ˆì´ì €
+    Passive        // íŒ¨ì‹œë¸Œ
 }
 
 public enum AttackTag
@@ -65,6 +65,6 @@ public class GrowthNode
     [TextArea]
     public string description;
 
-    // ¾ÆÁ÷Àº ºñ¿öµÎ°í,
-    // ³ªÁß¿¡ Modifier³ª Effect¸¦ Ãß°¡
+    // ì•„ì§ì€ ë¹„ì›Œë‘ê³ ,
+    // ë‚˜ì¤‘ì— Modifierë‚˜ Effectë¥¼ ì¶”ê°€
 }
